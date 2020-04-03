@@ -1,0 +1,39 @@
+---
+title: "Analyzing TNTP Common Metrics"
+author: "Adam Maier"
+description: >
+  This vignette shows how to use tntpmetric to quickly calculate average scores
+  on common metrics given a raw data set. These calculations can be used 
+  directly for goal reporting. It uses fake student survey data as an example
+  to walk through all the possible analyses: calculating a metric score at a
+  single timepoint, growth over time, and differences between subgroups.
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{analyzing_tntp_commonmetrics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(tntpmetrics)
+library(dplyr)
+```
+
+TNTP uses common metrics to learn from the work different projects
+
+
+## Purpose and Overview
+
+
+## How it works
+
+### Checking for errors or inconsistences in data
+
+### Required column names for each common metric

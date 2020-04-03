@@ -2,11 +2,11 @@
 % Please edit documentation in R/tntpmetric_outputs.R
 \name{tntpmetrics}
 \alias{tntpmetrics}
-\alias{tntpmetric_mean}
-\alias{tntpmetric_growth}
+\alias{metric_mean}
+\alias{metric_growth}
 \title{Compute single common metric mean, difference between groups, and/or change over time.}
 \usage{
-tntpmetric_mean(
+metric_mean(
   data,
   metric,
   equity_group = NULL,
@@ -14,7 +14,7 @@ tntpmetric_mean(
   scaleusewarning = T
 )
 
-tntpmetric_growth(
+metric_growth(
   data1,
   data2,
   metric,
@@ -24,7 +24,7 @@ tntpmetric_growth(
 )
 }
 \arguments{
-\item{data}{Data from a single timepoint. Used in \code{tntpmetric_mean}.}
+\item{data}{Data from a single timepoint. Used in \code{metric_mean}.}
 
 \item{metric}{Quoted name of the common metric. Options are "engagement", "belonging",
 "relevance", "assignments", "tntpcore", or "ipg".}
@@ -51,28 +51,28 @@ a 4 on this domain. In this case, the printed warning can be ignored. Default if
 If you are confident your data is on the right scale, you can suppress the warning by setting
 to \code{TRUE}.}
 
-\item{data1}{Data from the initial timepoint. Used in \code{tntpmetric_growth}.}
+\item{data1}{Data from the initial timepoint. Used in \code{metric_growth}.}
 
-\item{data2}{Data from the final timepoint. Used in \code{tntpmetric_growth}.}
+\item{data2}{Data from the final timepoint. Used in \code{metric_growth}.}
 }
 \value{
 A list of results including the overall mean or mean by equity group (for
-  \code{tntpmetric_mean}), the mean change over time or mean change for each group (for
-  \code{tntpmetric_growth}). Means are accompanied by standard errors and 95% confidence
+  \code{metric_mean}), the mean change over time or mean change for each group (for
+  \code{metric_growth}). Means are accompanied by standard errors and 95% confidence
   intervals. Also included are list elements for number of data points used in analysis.
 }
 \description{
-\code{tntpmetric_mean} computes the mean common metric score at a single point in time.
-  \code{tntpmetric_growth} computes the mean change in the common metric score between two points
+\code{metric_mean} computes the mean common metric score at a single point in time.
+  \code{metric_growth} computes the mean change in the common metric score between two points
   in time. Both functions can disaggregate  results based on a group characteristic used for
   equity comparisons. They can also account for metrics where multiple data points come from the
   same classroom, like those based on student surveys or assignments.
 }
 \section{Data and Variable Format}{
 
-  \code{tntpmetric_mean} and \code{tntpmetric_growth} should be used with the raw metric data.
+  \code{metric_mean} and \code{metric_growth} should be used with the raw metric data.
   Each row of data should represent a single rated outcome. For example, each row of data will be
-  a single compelted survey, a single rated assignment, a single classroom observations, etc.
+  a single completed survey, a single rated assignment, a single classroom observation, etc.
   The data should not have the metric already calculated but instead have the components needed
   to make this calculation. For example, data on student engagement should not have a column or
   variable titled engagement, but should have variables corresponding the four survey questions
@@ -97,24 +97,24 @@ A list of results including the overall mean or mean by equity group (for
 \examples{
 # Compute the mean engagement score for an entire project at a single time point. Setting
 # by_class = T because multiple surveys come from the same class.
-tntpmetric_mean(practice_data, metric = "engagement", by_class = T)
+metric_mean(practice_data, metric = "engagement", by_class = T)
 
 # Do the same, but now compare results by a class's FRL population
-tntpmetric_mean(practice_data, metric = "engagement", equity_group = "frl_cat", by_class = T)
+metric_mean(practice_data, metric = "engagement", equity_group = "frl_cat", by_class = T)
 
 # Look at change in engagement over time, then look at how differences in engagement between a
 # class's FRL population change over time
-tntpmetric_growth(
+metric_growth(
   practice_data_initial,
   practice_data_final,
   metric = "engagement",
   by_class = T
  )
- tntpmetric_growth(
+ metric_growth(
   practice_data_initial,
   practice_data_final,
   metric = "engagement",
-  equity_group = "frl_cat",
+  equity_group = "class_frl_cat",
   by_class = T
  )
 

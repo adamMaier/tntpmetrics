@@ -3,19 +3,13 @@
 # has a unique scoring approach and needs, so IPG related helper functions are separate.
 
 # Function to make sure items are in data and spelled as needed. Lists those that are missing.
-data_name_check <- function(data, needed_items, need_classid) {
+data_name_check <- function(data, needed_items) {
   var_check <- needed_items[!needed_items %in% names(data)]
-  cid_check <- "class_id"[!"class_id" %in% names(data)]
-  full_check <- ifelse(
-    need_classid,
-    c(var_check, cid_check),
-    var_check
-  )
-  if (!is.na(full_check)) {
+  if (!rlang::is_empty(var_check)) {
     stop(
       paste(
         "Data set", deparse(substitute(data)), "is missing the following variable(s):",
-        paste0(full_check, collapse = ", "), "\n",
+        paste0(var_check, collapse = ", "), "\n",
         "Make sure spelling is correct."
       ),
       call. = FALSE
@@ -23,11 +17,24 @@ data_name_check <- function(data, needed_items, need_classid) {
   }
 }
 
+# Function to check if a class_id variable is present
+data_classid_check <- function(data) {
+  cid_check <- "class_id" %in% names(data)
+  if (!cid_check) {
+    stop(
+      paste(
+        "Data set", deparse(substitute(data)), "is missing a variable called class_id.",
+        "Make sure spelling is correct."
+      ),
+      call. = FALSE
+    )
+  }
+}
 
 # Function to make sure items are in IPG data and spelled as needed. Lists those that are missing.
 # This is a sequential wave, where first, we check grade-level and subject area as that determines
 # what is needed for the indicators.
-data_name_check_ipg <- function(data, need_classid) {
+data_name_check_ipg <- function(data) {
 
   # First, checking presence of grade_level and form subject
   var_check <- c("form", "grade_level")[!c("form", "grade_level") %in% names(data)]

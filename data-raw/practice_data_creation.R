@@ -49,7 +49,8 @@ ss_data_initial <-
       1000
     )
   ) %>%
-  spread(key = item, value = response)
+  spread(key = item, value = response) %>%
+  select(-(class_mean_0_3_t1:class_sd_0_3))
 
 ss_data_final <-
   data.frame(
@@ -78,10 +79,8 @@ ss_data_final <-
       1000
     )
   ) %>%
-  spread(key = item, value = response)
+  spread(key = item, value = response) %>%
+  select(-(class_mean_0_3_t1:class_sd_0_3))
 
-ss_data_initial <- select(ss_data[[1]], -random_split)
-ss_data_final <- select(ss_data[[1]], -random_split)
-
-usethis::use_data(ss_data_initial)
-usethis::use_data(ss_data_final)
+usethis::use_data(ss_data_initial, overwrite = TRUE)
+usethis::use_data(ss_data_final, overwrite = TRUE)
