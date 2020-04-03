@@ -1,0 +1,284 @@
+#' Compute single common metric mean, difference between groups, and/or change over time.
+#'
+#' \code{tntpmetric_mean} computes the mean common metric score at a single point in time.
+#'   \code{tntpmetric_growth} computes the mean change in the common metric score between two points
+#'   in time. Both functions can disaggregate  results based on a group characteristic used for
+#'   equity comparisons. They can also account for metrics where multiple data points come from the
+#'   same classroom, like those based on student surveys or assignments.
+#'
+#' @section Data and Variable Format:
+#'   \code{tntpmetric_mean} and \code{tntpmetric_growth} should be used with the raw metric data.
+#'   Each row of data should represent a single rated outcome. For example, each row of data will be
+#'   a single compelted survey, a single rated assignment, a single classroom observations, etc.
+#'   The data should not have the metric already calculated but instead have the components needed
+#'   to make this calculation. For example, data on student engagement should not have a column or
+#'   variable titled engagement, but should have variables corresponding the four survey questions
+#'   used to calculate engagement. Leave all items in their raw form - the functions automatically
+#'   account for items that need to be reverse coded. The only requirement is that the data contains
+#'   the needed variables and that the variables are numeric (i.e., data values should be 0s and 1s,
+#'   not 'No' and 'Yes'. This ensures that the common metrics are calculated correctly and
+#'   consistently across projects. Each metric has its own set of needed variables that must be
+#'   spelled exactly as shown below. They are:
+#'   \describe{
+#'     \item{engagement:}{eng_like, eng_losttrack, eng_interest, eng_moreabout}
+#'     \item{belonging:}{tch_problem, bel_ideas, bel_fitin, tch_interestedideas}
+#'     \item{relevance:}{rel_asmuch, rel_future, rel_outside, rel_rightnow}
+#'     \item{expectations:}{exp_mastergl, exp_toochallenging, exp_oneyear, exp_different,
+#'       exp_overburden, exp_began}
+#'     \item{tntpcore:}{ec, ao, dl, cl}
+#'     \item{ipg:}{ca1_a, ca1_b, ca1_c, ca2_overall, ca3_overall, col, rfs_overall}
+#'    }
+#'  See the vignette for more details.
+#'
+#' @param data Data from a single timepoint. Used in \code{tntpmetric_mean}.
+#' @param data1 Data from the initial timepoint. Used in \code{tntpmetric_growth}.
+#' @param data2 Data from the final timepoint. Used in \code{tntpmetric_growth}.
+#' @param metric Quoted name of the common metric. Options are "engagement", "belonging",
+#'   "relevance", "assignments", "tntpcore", or "ipg".
+#' @param equity_group Optional quoted name of the categorical column/variable in data that contains
+#'   the equity group designation. For example, if data has an indicator variable called
+#'   \code{class_frl} that is either "Under 50% students with FRL" or "50% or more students with
+#'   FRL", then analyst could set \code{equity_group = "class_frl"} to get differences in metric
+#'   between these two groups. Default is no equity comparison.
+#' @param by_class A logical (T/F) option indicating if multiple rows of data come from the same
+#'   class. When \code{by_class = T}, analysis will automatically account for different sample sizes
+#'   between classes and adjust the standard errors to account for the lack of independence between
+#'   data deriving from the same class. If set to \code{FALSE}, data must have a variable titled
+#'   \code{class_id}. Default if \code{FALSE}.
+#' @param scaleusewarning A logical (T/F) indicating whether function should generate a warning when
+#'   not all values of a scale are used. For example, student survey data that only contains values
+#'   of 1s and 2s could mean that data is on a 1-4 scale, when it should be on a 0-3 scale. When
+#'   \code{scaleusewarning = T}, the function will warn you of this. This warning does not mean your
+#'   data is wrong. For example, the Academic Ownership domain from TNTP CORE has 5 potential
+#'   values: 1, 2, 3, 4, or 5. It's not uncommon to have data where teachers were never rated above
+#'   a 4 on this domain. In this case, the printed warning can be ignored. Default if \code{TRUE}.
+#'   If you are confident your data is on the right scale, you can suppress the warning by setting
+#'   to \code{TRUE}.
+#'
+#' @return A list of results including the overall mean or mean by equity group (for
+#'   \code{tntpmetric_mean}), the mean change over time or mean change for each group (for
+#'   \code{tntpmetric_growth}). Means are accompanied by standard errors and 95% confidence
+#'   intervals. Also included are list elements for number of data points used in analysis.
+#'
+#' @examples
+#' # Compute the mean engagement score for an entire project at a single time point. Setting
+#' # by_class = T because multiple surveys come from the same class.
+#' tntpmetric_mean(practice_data, metric = "engagement", by_class = T)
+#'
+#' # Do the same, but now compare results by a class's FRL population
+#' tntpmetric_mean(practice_data, metric = "engagement", equity_group = "frl_cat", by_class = T)
+#'
+#' # Look at change in engagement over time, then look at how differences in engagement between a
+#' # class's FRL population change over time
+#' tntpmetric_growth(
+#'   practice_data_initial,
+#'   practice_data_final,
+#'   metric = "engagement",
+#'   by_class = T
+#'  )
+#'  tntpmetric_growth(
+#'   practice_data_initial,
+#'   practice_data_final,
+#'   metric = "engagement",
+#'   equity_group = "class_frl_cat",
+#'   by_class = T
+#'  )
+#'
+#' @name tntpmetrics
+NULL
+
+# Non-exported helper function to prepare needed items and scales for each metric.
+cm_iteminfo <- function(metric) {
+
+  # Enter needed indicator variable names and scales for each metric
+  if (metric == "engagement") {
+    ni <- c("eng_like", "eng_losttrack", "eng_interest", "eng_moreabout")
+    ri <- NULL
+    sc <- 0:3
+  }
+
+  if (metric == "belonging") {
+    ni <- c("tch_problem", "bel_ideas", "bel_fitin", "tch_interestedideas")
+    ri <- NULL
+    sc <- 0:3
+  }
+
+  if (metric == "relevance") {
+    ni <- c("rel_asmuch", "rel_future", "rel_outside", "rel_rightnow")
+    ri <- NULL
+    sc <- 0:3
+  }
+
+  if (metric == "expectations") {
+    ni <- c("exp_mastergl", "exp_toochallenging", "exp_oneyear", "exp_different", "exp_overburden",
+            "exp_began")
+    ri <- c("exp_toochallenging", "exp_different", "exp_overburden", "exp_began")
+    sc <- 0:5
+  }
+
+  if (metric == "assignments") {
+    ni <- c("content", "practice", "relevance")
+    ri <- NULL
+    sc <- 0:2
+  }
+
+  if (metric == "tntpcore") {
+    ni <- c("ec", "ao", "dl", "cl")
+    ri <- NULL
+    sc <- 1:5
+  }
+
+  list("ni" = ni, "ri" = ri, "sc" = sc)
+}
+
+# Function for means at one time-point
+#' @rdname tntpmetrics
+#' @export
+tntpmetric_mean <- function(data, metric, equity_group = NULL, by_class = F, scaleusewarning = T) {
+
+  # Strip data of attributes
+  data <- as.data.frame(data)
+
+  iteminfo <- cm_iteminfo(metric)
+  ni <- iteminfo[["ni"]]
+  ri <- iteminfo[["ri"]]
+  sc <- iteminfo[["sc"]]
+
+  # Print warning message if using a metric that should have a class ID
+  if (metric %in% c("engagement", "belonging", "relevance", "assignments") & !by_class) {
+    warning(
+      paste(
+        "To properly analyze the", metric, "metric, you should have a variable called class_id in",
+        "your data, and set by_class = T in this tntpmetric_static function.",
+        "If you did not collect a class ID your results might not be appropriate.",
+        "Contact Cassie Coddington to discuss."
+      )
+    )
+  }
+
+  if (metric %in% c("engagement", "belonging", "relevance", "expectations", "assignments")) {
+    data_name_check(data, needed_items = ni, need_classid = by_class)
+    data_scale_check(data, needed_items = ni, item_scale = sc)
+    if (scaleusewarning) data_scaleuse_check(data, needed_items = ni, item_scale = sc)
+    data <- construct_maker_sum(data, needed_items = ni, item_scale = sc, reversed_items = ri)
+  }
+
+  if (metric == "tntpcore") {
+    data_name_check(data, needed_items = ni, need_classid = by_class)
+    data_scale_check(data, needed_items = ni, item_scale = sc)
+    if (scaleusewarning) data_scaleuse_check(data = dat, needed_items = ni, item_scale = sc)
+    data <- construct_maker_mean(data, needed_items = ni, item_scale = sc, reversed_items = ri)
+  }
+
+  if (metric == "ipg") {
+    data_name_check_ipg(data, need_classid = by_class)
+    data_scale_check_ipg(data)
+    if (scaleusewarning) {
+      data_scaleuse_check(
+        data,
+        needed_items = c("ca1_a", "ca1_b", "ca1_c"),
+        item_scale = 0:1
+      )
+      data_scaleuse_check(
+        data,
+        needed_items = c("ca2_overall", "ca3_overall", "col"),
+        item_scale = 1:4
+      )
+    }
+    data <- construct_maker_ipg(data)
+  }
+
+  if (!is.null(equity_group)) {
+    data <- equity_check(data, equity_group = equity_group)
+    out <- cm_equity_mean(data, need_classid = by_class)
+  } else {
+    out <- cm_mean(data, need_classid = by_class)
+  }
+  out
+}
+
+# Function for change in scores over time
+#' @rdname tntpmetrics
+#' @export
+tntpmetric_growth <- function(data1, data2, metric, equity_group = NULL, by_class = F,
+                              scaleusewarning = T) {
+
+  # Strip data of attributes
+  data1 <- as.data.frame(data1)
+  data2 <- as.data.frame(data2)
+
+  iteminfo <- cm_iteminfo(metric)
+  ni <- iteminfo[["ni"]]
+  ri <- iteminfo[["ri"]]
+  sc <- iteminfo[["sc"]]
+
+  # Print warning message if using a metric that should have a class ID
+  if (metric %in% c("engagement", "belonging", "relevance", "assignments") & !by_class) {
+    warning(
+      paste(
+        "To properly analyze the", metric, "metric, you should have a variable called class_id in",
+        "your data, and set by_class = T in this tntpmetric_growth function.",
+        "If you did not collect a class ID your results might not be appropriate.",
+        "Contact Cassie Coddington to discuss."
+      )
+    )
+  }
+
+  if (metric %in% c("engagement", "belonging", "relevance", "expectations", "assignments")) {
+    data_name_check(data1, needed_items = ni, need_classid = by_class)
+    data_name_check(data2, needed_items = ni, need_classid = by_class)
+    data_scale_check(data1, needed_items = ni, item_scale = sc)
+    data_scale_check(data2, needed_items = ni, item_scale = sc)
+    if (scaleusewarning) {
+      data_scaleuse_check(data1, needed_items = ni, item_scale = sc)
+      data_scaleuse_check(data2, needed_items = ni, item_scale = sc)
+    }
+    data1 <- construct_maker_sum(data1, needed_items = ni, item_scale = sc, reversed_items = ri)
+    data2 <- construct_maker_sum(data2, needed_items = ni, item_scale = sc, reversed_items = ri)
+  }
+
+  if (metric == "tntpcore") {
+    data_name_check(data1, needed_items = ni, need_classid = by_class)
+    data_name_check(data2, needed_items = ni, need_classid = by_class)
+    data_scale_check(data1, needed_items = ni, item_scale = sc)
+    data_scale_check(data2, needed_items = ni, item_scale = sc)
+    if (scaleusewarning) {
+      data_scaleuse_check(data1, needed_items = ni, item_scale = sc)
+      data_scaleuse_check(data2, needed_items = ni, item_scale = sc)
+    }
+    data1 <- construct_maker_mean(data1, needed_items = ni, item_scale = sc, reversed_items = ri)
+    data2 <- construct_maker_mean(data2, needed_items = ni, item_scale = sc, reversed_items = ri)
+  }
+
+  if (metric == "ipg") {
+    data_name_check_ipg(data1, need_classid = by_class)
+    data_name_check_ipg(data2, need_classid = by_class)
+    data_scale_check_ipg(data1)
+    data_scale_check_ipg(data2)
+    if (scaleusewarning) {
+      data_scaleuse_check(data1, needed_items = c("ca1_a", "ca1_b", "ca1_c"), item_scale = 0:1)
+      data_scaleuse_check(data2, needed_items = c("ca1_a", "ca1_b", "ca1_c"), item_scale = 0:1)
+      data_scaleuse_check(
+        data1,
+        needed_items = c("ca2_overall", "ca3_overall", "col"),
+        item_scale = 1:4
+      )
+      data_scaleuse_check(
+        data2,
+        needed_items = c("ca2_overall", "ca3_overall", "col"),
+        item_scale = 1:4
+      )
+    }
+    data1 <- construct_maker_ipg(data1)
+    data2 <- construct_maker_ipg(data2)
+  }
+
+  if (!is.null(equity_group)) {
+    data1 <- equity_check(data1, equity_group = equity_group)
+    data2 <- equity_check(data2, equity_group = equity_group)
+    out <- cm_equity_growth(data_1, data_2, need_classid = by_class)
+  } else {
+    out <- cm_growth(data_1, data_2, need_classid = by_class)
+  }
+  out
+}

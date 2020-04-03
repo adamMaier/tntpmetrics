@@ -1,0 +1,21 @@
+Package: tntpmetrics
+Type: Package
+Title: TNTP Common Metric Analysis and Preparation
+Version: 0.1.0
+Author: Adam Maier
+Maintainer: Adam Maier <adam.maier@tntp.org>
+Description: Functions to apply business rules for many TNTP common metrics, mostly
+    used for examining projects' goals. Allows analysts to create metrics, calculate 
+    metric means and changes over time, and calculate equity-based differences
+    between groups. Also provides functions to sample schools, teachers, etc. when
+    determining from whom or where to collect data.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports:
+    dplyr (>= 0.8.5),
+    rlang (>= 0.4.3),
+    purrr (>= 0.3.3),
+    emmeans (>= 1.4.5),
+    lme4 (>= 1.1-21)
+RoxygenNote: 7.0.2
