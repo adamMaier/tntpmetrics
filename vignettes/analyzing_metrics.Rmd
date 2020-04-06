@@ -21,19 +21,245 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, include = FALSE}
 library(tntpmetrics)
 library(dplyr)
 ```
 
-TNTP uses common metrics to learn from the work different projects
+TNTP uses common metrics to learn from the work project teams are doing. By using similar metrics across different projects, TNTP teams are better able to track their progress reliably and coordinate work across contexts. Common metrics also serve as the core of organization-wide goals. Though nearly all projects are using common metrics somewhere in their work, collecting common data does not guarantee each project will score or aggregate the metrics similarly. And despite scoring guidance, using valuable anlayst time to walk through the steps to calculate metrics, or score teams' goals is not ideal.
 
+The `tntpmetrics` package includes three handy functions that start with raw, project-collected data and calculate individual common metric scores, summarize average common metrics scores for an entire project, compare common metric scores between (typically student sub-) groups, and analyze changes in metric scores over time. Most of the work of these functions is checking for potential errors or inconsisties in the data -- such as data not being on the proper scale, or missing but needed variables. These functions attempt to anticipate all of the potential issues that could occur between collecting raw data and calculating simple means from it. This document shows you how to use these three functions.
 
-## Purpose and Overview
+## Current available metrics
+Currently, `tntpmetrics` has functions to calculate and work with the following common metrics:
 
+* **Student surveys:** Engagement, Relevance, and Belonging
+* **Observation tools:** IPG and TNTP Core
+* **Teacher and leader surveys:** Expectations
+* **Assignments:** Grade-Appropriate Assignments
 
-## How it works
+## Practice Data Sets: ss_data_initial and ss_data_final
+To demonstrate how to apply the common metric functions in `tntpmetrics`, we will use two sets of fake student survey data. The data contains 1,000 student survey responses from 26 classes at the beginning of a project (`ss_data_initial.dta`) and another 1,000 student survey responses from the same 26 classes at the end of the project (`ss_data_final.dta`). 
 
-### Checking for errors or inconsistences in data
+This data automatically somes with the `tntpmetrics` package. Both data sets have the same variable/column names, which include a value for each survey question from the *Engagement*, *Relevance*, and *Belonging* constructs. Specfically, these metrics are based on the following survey items:
 
-### Required column names for each common metric
+* Engagement
+    + eng_interest ("*What we were learning was interesting.*")
+    + eng_like ("*I liked what we did in class.*")
+    + eng_losttrack ("*I was so into what we were learning I lost track of time.*")
+    + eng_moreabout ("*I thought more about what we were learning than anything else.*")
+* Relevance ("*We spend time in class on things that...*")
+    + rel_asmuch ("*Will help me learn just as much as kids in other schools.*")
+    + rel_future ("*Are important to my future goals.*")
+    + rel_outside ("*I can use outside of school.*")
+    + rel_rightnow ("*Are important to my life right now.*")
+* Belonging
+    + bel_ideas ("*In this class, my ideas really count.*")
+    + tch_interestedideas ("*In this class, my teacher is interested in my ideas.*")
+    + bel_fitin ("*In this class, I feel like I fit in.*")
+    + tch_problem ("*I could talk to my teacher for this class if I had a problem.*")
+
+These surveys items take on values of 0 (for Not True), 1 (for A Little True), 2 (for Mostly True), or 3 (for Very True). Also in the data is a class ID, and two demographic categorical character variables associated with each class.
+
+```{r data}
+head(ss_data_initial)
+```
+
+## Calculating Common Metrics
+`tntpmetrics` contains a simple function called `make_metric` to attach a new column/variable to your data with the value of the scored common metric. The new column will always have the prefix `cm_` followed by the name of the metric. For example, the *engagement* metric is simply the sum of the four engagement survey items. To use `make_metric`, simply provide the data set you want to use, and the 
+metric you want calculated, making sure to put the latter in quotes. The result is your data but with new variable `cm_engagement`. The function also tells you how many rows of data did not have a construct created because at least one of the survey items was missing.
+
+```{r make_metric_example}
+make_metric(data = ss_data_initial, metric = "engagement") %>%
+  select(response_id, starts_with("eng_"), cm_engagement) %>%
+  head()
+```
+
+### Checking for common errors
+`make_metric` automatically checks for the most common data issues. 
+
+#### Misspelled Variables
+First, it requires that the data have the variable names spelled exactly as above. There is nothing special about these variable names, and the function had to choose some as the default. If your data has the variable names spelled differently, then you'll have to change them before using `make_metric`. Otherwise, you'll get an error:
+
+```{r make_metric_namerror}
+ss_data_initial %>%
+  rename(eng_interest_wrongspelling = eng_interest) %>%
+  make_metric(metric = "engagement")
+```
+
+Which variable names are needed for each metric can always be found by typing `? make_metric`; they are also detailed later in this vignette.
+
+#### Items on the wrong scale
+Second, `make_metric` will check each item to ensure it's on the expected scale. For student survey items, it expects the scale of 0-3 outlined above. If any data value is outside of this scale, you'll get an error telling you which variables are out of scale and the proper scale on which they should be:
+
+```{r make_metric_scaleerror_1}
+ss_data_initial %>%
+  mutate(
+    eng_interest = eng_interest + 1,
+    eng_like = eng_like - 1
+  ) %>%
+  make_metric(metric = "engagement")
+```
+
+You will also get an error if your scales are not numeric:
+
+```{r make_metric_scaleerror_2}
+ss_data_initial %>%
+  mutate(
+    eng_interest = case_when(
+        eng_like == 0 ~ "Not True",
+        eng_like == 1 ~ "A Little True",
+        eng_like == 2 ~ "Mostly True",
+        eng_like == 3 ~ "Very True"
+    )
+  ) %>%
+  make_metric(metric = "engagement")
+```
+
+The scales needed for each metric are detailed later in this vignette.
+
+#### (Optional) Censored scale use
+There are times where items may be on the wrong scale, but in a way that is undetectable. For example,
+what if the student survey data was provided to you with each item on a scale of 1-4, but because students never responded "Very True", the data only actually has values of 1-3. Values of 1-3 are all *in scale* for student surveys, so that the preceding error will not occur. TO account for this, `make_metric` automatically checks that each possible value on the scale is used and gives you a warning if that is not the case by indicating the affected variables and which value(s) they did not use:
+
+```{r make_metric_scaleusewarning_1}
+ss_data_initial %>%
+  mutate(eng_interest = ifelse(eng_interest == 0, NA, eng_interest)) %>%
+  make_metric(metric = "engagement") %>%
+  head()
+```
+
+Because this is not technically an error, you can turn off this default warning by setting `scaleusewarning = F`:
+
+```{r make_metric_scaleusewarning_2}
+ss_data_initial %>%
+  mutate(eng_interest = ifelse(eng_interest == 0, NA, eng_interest)) %>%
+  make_metric(metric = "engagement", scaleusewarning = F) %>%
+  head()
+```
+
+### Required column names and scales for each common metric
+Below are the required column names and associated scales for each metric. See [The Goals Guidance Hub](https://tools.tntp.org/confluence/pages/viewpage.action?spaceKey=PROJ&title=Goals+Guidance+Hub#ContractandTeamGoalsHub--248085037) for more details
+
+* **Engagement**
+    * Items: eng_like, eng_losttrack, eng_interest, eng_moreabout.
+    * Scale: 0 (Not True), 1 (A Little True), 2 (Mostly True), or 3 (Very True).
+* **Relevance**
+    * Items: rel_asmuch, rel_future, rel_outside, rel_rightnow
+    * Scale: 0 (Not True), 1 (A Little True), 2 (Mostly True), or 3 (Very True).
+* **Belonging**
+    * Items: tch_problem, bel_ideas, bel_fitin, tch_interestedideas
+    * Scale: 0 (Not True), 1 (A Little True), 2 (Mostly True), or 3 (Very True).
+* **Teacher or Leader Expectations**
+    * Items: exp_mastergl, exp_toochallenging, exp_oneyear, exp_different, exp_overburden, exp_began
+    * Scale: 0 (Strongly Disagree), 1 (Disagree), 2 (Somewhat Disagree), 3 (Somewhat Agree), 4 (Agree), and 5 (Strongly Agree).
+    * Note: Even though some items are reverse coded, the data expects each item in its raw form. Do not reverse code items ahead of time.
+* **TNTP Core**
+    * Items: ec, ao, dl, cl
+    * Scale: 1 (Ineffective), 2 (Minimally Effective), 3 (Developing), 4 (Proficient), 5 (Skillful)
+* **IPG**
+    * Items: ca1_a, ca1_b, ca1_c, ca2_overall, ca3_overall, col, rfs_overall
+    * Other Needed Items: grade_level and form. (form is "Math", "Literacy", "Science", or "Social Studies").
+    * Scale: ca1_a, ca1_b, and ca1_c are 0 (No) and 1 (Yes). All other items are 1 (Not Yet), 2 (Somewhat), 3 (Mostly), and 4 (Yes)
+    * Note: RFS Overall is only required if observation data contains K-5 Literacy observations.
+
+### A note about the IPG
+The IPG has the most complicated scoring approach of any of the common metrics. That is because it was originally inteded as a diagnostic and development (rather than evaluation) tool, has different components based on the subject matter, has indicators on different scales, and can often have layers of skip logic in the online form used to capture the data. Nevertheless, `make_metric` works just as easily on the IPG as it does on other metrics, but users should be aware of two things:
+
+* The function expects the Core Action 1 indicators to be on a 0-1 scale, but the other Core Action scores (and RFS Overall and Culture of Learning) to be on a 1-4 scale. This is to make the function work more easily on data coming out of Academic Diagnostic forms, which tend to use these scales. `make_metric` will automatically place everything on the proper scale.
+* `make_metric` will not account for observations that should be excluded. For example, some Literacy observations were unrateable because they focused on narrative writing. `make_metric` does not expect any of these type of skip-logic filters that often accompany the online Acadmeic Diagnostic form, so it's up to the analyst to first exclude observations that should not be included based on the business rules. Similarly, because of the onlnie skip logic, there are occasions where Core Actions 2 and 3 should be set to the lowest possible value because the observer was skipped past the questions. If these values are left as NA, `make_metric` will return NAs for the overall common metric score. The analyst must apply the appropriate business rules *before* using `make_metric`.
+
+## Goals Analysis
+In most cases, making the common metric is just an intermediate step to scoring the metric for goals purposes. `tntpmetric` has two functions that should make all the necessary goals calculations for you. In both cases, *you do not need* to create the metric ahead of time. Just provide the function your raw data, indicate the metric of interest and type of analysis needed.
+
+### Calculating the average common metric score
+If you want to calculate the average common metric score at a single point in time, you can use the function `metric_mean`. For example, to calculate the average Sense of Belonging score in the intial survey data, simply give it your data and indicate it's the "belonging" metric. (The `by_class` option will be discussed below)
+
+```{r metric_mean}
+metric_mean(ss_data_initial, metric = "belonging", by_class = T)
+```
+
+`metric_means` estimates this mean using a multilevel model framework, and takes advantage of the R package `emmeans` to print the output. The overall mean is displayed in the first elemetn of the returned list under `emmean`. For a more robust result, you are also provided the appropriate Standard Error (`SE`) and the lower and upper bounds of the 95% COnfidence Interval (`lower.CL` and `upper.cl`)
+
+### Calculating the average common metric score for different groups.
+Many projects have equity-based goals that require looking at mean common metric scores for different types of classrooms. For example, the student survey data has a variable `class_frl_cat` indicating whether the response comes from a class with at least 50% of students receiving free or reduced price lunch or a class where fewer than 50% of students receive FRL. To look at the results for each group, simply include the column name as the `equity_group`:
+
+```{r metric_mean_equity_frl}
+metric_mean(ss_data_initial, metric = "belonging", equity_group = "class_frl_cat", by_class = T)
+```
+
+Now, the results show the mean for both types of classes, and include another entry to the returned list called "Difference(s) between groups" the calculates the contrast, or thedifference between these group means, and gives a standard error and p-value in case it's of interest. Note that the contrast is always represented as the first grou plisted minus the second group listed. In this case, because the reported difference is negative, it means that classes with under 50% FRL students tended to have a higher sense of belonging score.
+
+Equity group comparisons work even when there are more than two group values, like in the variable `class_soc_cat`:
+
+```{r metric_mean_equity_soc}
+metric_mean(ss_data_initial, metric = "belonging", equity_group = "class_soc_cat", by_class = T)
+```
+
+Because it's rare for projects to set equity goals for factors that have many different groups, `metric_mean` warns you if your `equity_group` variable has more thna 5 catgories; usually that means something is wrong with your variable.
+
+### The by_class option.
+Some metrics collect multiple data points from a single class. For example, student surveys will survey multiple students in the same class, and in many cases multiple times. Because different classes will almost sruely have a different number of associated data points -- some classes might get 10 surveys, while another might get 50 -- we need an approach that doesn't over- or under-represent some classes because of differences in sample sizes. Fortunately, the multilevel models undergirding the the functions in `tntpmetrics` account for differences in sample sizes between classes automatically. But to make them work, you must have a variable in your data titled class_id representing each classroom's unique identifier. You must also set `by_class = T` as we did in the above examples.
+
+If you do not set `by_class = T` and/or you do not have a class_id variable, `metric_mean` will not account for differences in sample sizes by class. In cases where you have multiple rows of data assocaited with the same class, not accounting for class IDs is statistically inappopriate and the standard errors and confidence intervals will likely be too small. Because some rpojects will surely forget to collect a class ID, `metric_means` will still give you the results even if you set `by_class = F` (or do not specify this option, as FALSE is the default), but will warn you about this statistical issue if you are using a metric that is expecting a class ID, like student surveys or assignments:
+
+```{r metric_mean_byclass}
+metric_mean(ss_data_initial, metric = "belonging")
+```
+
+You will not get this warning if you set `by_class = F` and you are analyzing a metric that is less likely to have multiple responses per class, like expectations or observations.
+
+### Calculating average growth over time
+To examine how the average metric score has changed between two time points, use the function `metric_growth`. This function works the same as `metric_mean` but expects you to provide two data sets: one for the first time point (`data1`) and one for the later time point (`data2`). For example, to look at how engagement has changed over time, we can use:
+
+```{r metric_growth}
+metric_growth(
+  data1 = ss_data_initial, 
+  data2 = ss_data_final, 
+  metric = "engagement", 
+  by_class = T
+)
+```
+
+In this example, the mean expectation score initally was 4.93, but increased to 5.99 by the final data collection. This difference was a growth of 1.06 points.
+
+### Calculating differences in growth over time between equity groups
+
+You can also examine how growth compared between different groups by specifying he equity group:
+
+```{r metric_growth_equity}
+metric_growth(
+  data1 = ss_data_initial, 
+  data2 = ss_data_final, 
+  metric = "engagement",
+  equity_group = "class_frl_cat",
+  by_class = T
+)
+```
+
+In this example, classes with at least 50% of students receiving FRL had an initial engaegment score of 2.93, and then grew to 4.02 at the final data collection. Classrooms with under 50% FRL students also grew, from 6.94 to 7.97. Adding this equity_group option will directly show how the difference between the two groups varied at each time point. In this case, classes with at least 50% FRL students had engaegment scores that were 4.01 points lower than other classes initially, and 3.95 points lower at the final data collection. The difference of these differences (i.e., -3.95 - -4.01 = 0.0659) is shown in the list element "Change in differences between groups over time". In this case, this difference is small and not signifcantly different from 0 (the p-value is 0.48), implying that the gap between these types of classrooms did not change meaningfully over time.
+
+You must have the same group definitions in both data sets, or you'll get an error:
+
+```{r metric_growth_equity_error}
+# Renaming FRL class variable so it doesn't match initial data
+ss_data_final_error <- ss_data_final %>%
+  mutate(
+    class_frl_cat = ifelse(
+      class_frl_cat == "At least 50% FRL",
+      ">= 50% FRL",
+      class_frl_cat
+    )
+  )
+metric_growth(
+  data1 = ss_data_initial, 
+  data2 = ss_data_final_error, 
+  metric = "engagement",
+  equity_group = "class_frl_cat",
+  by_class = T
+)
+```
+
+## Questions?
+
+Contact Adam Maier or Cassing Coddington with questions.

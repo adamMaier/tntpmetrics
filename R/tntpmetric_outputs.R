@@ -100,10 +100,11 @@ metric_mean <- function(data, metric, equity_group = NULL, by_class = F, scaleus
     warning(
       paste(
         "To properly analyze the", metric, "metric, you should have a variable called class_id in",
-        "your data, and set by_class = T in this function.",
+        "your data, and set by_class = T.",
         "If you did not collect a class ID your results might not be appropriate.",
         "Contact Cassie Coddington to discuss."
-      )
+      ),
+      call. = F
     )
   }
 
@@ -135,10 +136,11 @@ metric_growth <- function(data1, data2, metric, equity_group = NULL, by_class = 
     warning(
       paste(
         "To properly analyze the", metric, "metric, you should have a variable called class_id in",
-        "your data, and set by_class = T in this function.",
+        "your data, and set by_class = T.",
         "If you did not collect a class ID your results might not be appropriate.",
         "Contact Cassie Coddington to discuss."
-      )
+      ),
+      call. = F
     )
   }
 

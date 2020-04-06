@@ -113,7 +113,7 @@ cm_equity_growth <- function(data_1, data_2, need_classid) {
 
   # Make sure equity_group values are the same in both data sets
   if (
-    all(sort(unique(na.omit(data_1$equity_group))) != sort(unique(na.omit(data_2$equity_group))))
+    !all(sort(unique(na.omit(data_1$equity_group))) == sort(unique(na.omit(data_2$equity_group))))
   ) {
     stop("Some values of equity group are not present in BOTH data sets.", call. = F)
   }
