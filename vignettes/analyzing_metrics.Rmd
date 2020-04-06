@@ -81,7 +81,7 @@ make_metric(data = ss_data_initial, metric = "engagement") %>%
 #### Misspelled Variables
 First, it requires that the data have the variable names spelled exactly as above. There is nothing special about these variable names, and the function had to choose some as the default. If your data has the variable names spelled differently, then you'll have to change them before using `make_metric`. Otherwise, you'll get an error:
 
-```{r make_metric_namerror}
+```{r make_metric_namerror, error = T}
 ss_data_initial %>%
   rename(eng_interest_wrongspelling = eng_interest) %>%
   make_metric(metric = "engagement")
@@ -92,7 +92,7 @@ Which variable names are needed for each metric can always be found by typing `?
 #### Items on the wrong scale
 Second, `make_metric` will check each item to ensure it's on the expected scale. For student survey items, it expects the scale of 0-3 outlined above. If any data value is outside of this scale, you'll get an error telling you which variables are out of scale and the proper scale on which they should be:
 
-```{r make_metric_scaleerror_1}
+```{r make_metric_scaleerror_1, error = T}
 ss_data_initial %>%
   mutate(
     eng_interest = eng_interest + 1,
@@ -103,7 +103,7 @@ ss_data_initial %>%
 
 You will also get an error if your scales are not numeric:
 
-```{r make_metric_scaleerror_2}
+```{r make_metric_scaleerror_2, error = T}
 ss_data_initial %>%
   mutate(
     eng_interest = case_when(
@@ -241,7 +241,7 @@ In this example, classes with at least 50% of students receiving FRL had an init
 
 You must have the same group definitions in both data sets, or you'll get an error:
 
-```{r metric_growth_equity_error}
+```{r metric_growth_equity_error, error = T}
 # Renaming FRL class variable so it doesn't match initial data
 ss_data_final_error <- ss_data_final %>%
   mutate(
