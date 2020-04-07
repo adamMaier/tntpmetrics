@@ -22,6 +22,7 @@ knitr::opts_chunk$set(
 ```{r setup, include = FALSE}
 library(tntpmetrics)
 library(dplyr)
+library(magrittr)
 ```
 
 In most TNTP projects, we collect data on common metrics to understand the extent to which students, families, teachers, or others in an *entire* school, district, network, or state, have access to a valuable resource. It's often not practical to collect all the possible data -- we can't collect every assignment students in a school receive over an entire year, we can't observe every lesson, we can't survey every teacher -- so we gather data on the common metrics for a subset of classrooms, teachers, etc. From whom or from which classrooms data is collected is consequential; if we do not do so randomly, the common metric data might not be representative of the broader population on which we're hoping to make inferences.
@@ -122,20 +123,20 @@ When you want to include multiple non-categorical variables in your implicit str
 In the CMS example, let's turn percent FRL and percent SOC into categorical variables. We can also use the categorical letter grade of the SPG Score.
 
 ```{r make_cat_part2}
-cms_data <- cms_data %>%
+cms_data %<>%
   mutate(
     frl_cat = case_when(
-      .$frl_percent < 0.25 ~ "< 25%",
-      .$frl_percent < 0.50 ~ "25-50%",
-      .$frl_percent < 0.75 ~ "50-75%",
-      .$frl_percent <= 1.00 ~ "> 75%"
+      frl_percent < 0.25 ~ "< 25%",
+      frl_percent < 0.50 ~ "25-50%",
+      frl_percent < 0.75 ~ "50-75%",
+      frl_percent <= 1.00 ~ "> 75%"
     ),
     frl_cat = ordered(frl_cat, levels = c("< 25%", "25-50%", "50-75%", "> 75%")),
     soc_cat = case_when(
-      .$soc_percent < 0.25 ~ "< 25%",
-      .$soc_percent <= 0.50 ~ "25-50%",
-      .$soc_percent <= 0.75 ~ "50-75%",
-      .$soc_percent <= 1.00 ~ "> 75%"
+      soc_percent < 0.25 ~ "< 25%",
+      soc_percent <= 0.50 ~ "25-50%",
+      soc_percent <= 0.75 ~ "50-75%",
+      soc_percent <= 1.00 ~ "> 75%"
     ),
     soc_cat = ordered(soc_cat, levels = c("< 25%", "25-50%", "50-75%", "> 75%"))
   )
