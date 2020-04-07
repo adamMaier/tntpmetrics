@@ -122,7 +122,7 @@ When you want to include multiple non-categorical variables in your implicit str
 In the CMS example, let's turn percent FRL and percent SOC into categorical variables. We can also use the categorical letter grade of the SPG Score.
 
 ```{r make_cat_part2}
-cms_data %<>%
+cms_data <- cms_data
   mutate(
     frl_cat = case_when(
       frl_percent < 0.25 ~ "< 25%",
