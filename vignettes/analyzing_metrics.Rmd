@@ -262,4 +262,4 @@ metric_growth(
 
 ## Questions?
 
-Contact Adam Maier or Cassing Coddington with questions.
+Contact Adam Maier or Cassie Coddington with questions.

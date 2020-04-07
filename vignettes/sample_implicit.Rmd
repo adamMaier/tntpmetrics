@@ -206,15 +206,63 @@ cms_sample_withsize %>%
 
 Notice how incorporating size increased the number of secondary schools in the sample. Because these schools typically contain more students, including size increased the chance they'd be chosen.
 
-## More complex approaches
+## Other sampling approaches
+
+Implicit stratified sampling is not the only technique. But rather than create functions to account for all sampling situations, many other approaches can be accomplished with existing R functions and packages, or by combining them with `sample_implicit`.
+
+### Simple random sampling
+
+If you don't need or want to select a stratified sample, it's easiest to use already available functions. For a simple random sample -- i.e., the equivalent of throwing each row of data into a hat and selecting `n` of them at random -- I recommend `sample_n` from `dplyr`. This is the approach used earlier in the vignette to choose 10 random schools
+
+```{r srs}
+set.seed(123)
+cms_data %>%
+  sample_n(10)
+```
 
 ### Explicitly stratifying
 
-To be written
+Explicitly stratifying a sample typically means selecting a fixed number of units for explicit groups (or strata). For example, if I wanted to ensure I selected 3 schools of each grade-level type, I'd first split the data by grade-type, then randomly select schools in each group. Again, it's easiest to implement this with already available tools: by combining `sample_n` and `group_by` from dplyr.
+
+```{r explicit}
+set.seed(123)
+cms_data %>%
+  group_by(grade_level_cat) %>%
+  sample_n(3)
+```
+
+This approach guarantees a specific number of schools for each strata. This differs from implicitly stratifying, where one will get a sample that have units (e.g., schools) from the different strata, but there is no preordained or set number of units selected from each strata - in fact, if some strata contains few units then there there is a chance zero units from some strata will be chosen. Explicitly stratifying the data ensures each stratum is represented. This could be good or bad: if you force a unit to be chosen from each stratum, then the data may no longer be representative if the strata vary wildly in size. One would need to apply weights to the collected data to get back to representative values, which is a process seldom used at TNTP. At the same time, forcing a unit to be chosen from each stratum ensures no group is excluded, even if the data taken together is no longer representative of the overall population. Which approach to use depends on the needs of the project. If you're looking to get data that is representative of an entire school, district, network, etc. implicitly stratifying the data will likely get you there more easily.
 
 ### Combining explicit and implicit stratification using `purrr::map`
 
-To be written
+Using existing functions, we can also combine explicit and implicit stratification. For example, what if we wanted three schools from each grade-level type, but within each grade-level we did not want to pick schools randomly; instead we wanted to implicitly stratify on the proportion of students receiving FRL and the SPG score. We can combine both stratification approaches with the help of the `map` function from the `purrr` package.
+
+To implement, we split the data by grade-level type, then apply the `sample_implicit` function separately to each grade-type. We'll use the `map_df` function to combine the results back into a single data.frame all in one step.
+
+```{r explicit_implicit_part1, message = F}
+library(purrr)
+cms_data %>%
+  split(.$grade_level_cat) %>%
+  map_df(~ sample_implicit(.x, n = 3, frl_cat, spg_score)) %>%
+  filter(in_sample)  %>%
+  select(school_name, grade_level_cat)
+```
+
+Instead of selecting the same number of schools for each grade-level, we can instead vary how many schools are chosen by providing the map-type function additional information. In this case, we'll use `map2_df` so that we can tell it to use for the value of `n` the corresponding element in a list we give it. In the example below, we want to select 2 high schools, 3 middle schools, 4 primary schools, and 1 "other" school.
+
+```{r explicit_implicit_part2, message = F}
+cms_data %>%
+  split(.$grade_level_cat) %>%
+  map2_df(
+    .x = .,
+    .y = list("High" = 2, "Middle" = 3, "Other" = 1, "Primary" = 4),
+    .f = ~ sample_implicit(.x, n = .y, frl_cat, spg_score)
+  ) %>%
+  filter(in_sample) %>%
+  select(school_name, grade_level_cat)
+```
+
+There above examples assume a familiarity with `purrr` and indeed there are other ways to use `sample_implicit` with other existing R functions meet your needs. The point is to simply highlight how you can build upon `sample_implicit` to accomplish your sampling needs.
 
 ## Questions?
 
