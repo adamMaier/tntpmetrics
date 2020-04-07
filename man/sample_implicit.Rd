@@ -28,17 +28,17 @@ because their small school with only a few classrooms has the same chance as bei
 a large school with many classrooms. Default is NULL.}
 
 \item{random_num}{is a random number to control the random sampling process so that results are
-reproducible. Defailt is 1.}
+reproducible. Default is 1.}
 }
 \value{
 A data.frame with equal size as the original data, but sorted differently and with a new
-  variabled called \code{in_sample} that is TRUE of the row was selected for the same or FALSE
+  variabled called \code{in_sample} that is TRUE if the row was selected for the same or FALSE
   otherwise.
 }
 \description{
 \code{sample_implicit} draws a random sample of n units from a data.frame in a way that maximizes
   variation on variables of interest. For example, it can randomly sample schools in a way that
-  ensures the sampled schools have as much variation as possible on key characteristics like the
+  ensures the sampled schools have as much variation as possible on key characteristics, like the
   percent of students of color or average achievement. Implicit stratification is a common method
   to sample units in an educational setting: the NCES frequently uses this approach when
   deciding who to survey or test, including for
@@ -63,7 +63,7 @@ sampled_cars \%>\%
   group_by(in_sample) \%>\%
   summarize(mean_mpg = mean(mpg))
 
-# Using implcit stratification gets us more variation on variables of interest than just randomly
+# Using implicit stratification gets us more variation on variables of interest than just randomly
 # selecting rows. For example, if we chose 3 cars, we might not get variability on the variables
 # of interest. In this case, implicit_sample got us more variablity on mpg than a simple random
 # sample

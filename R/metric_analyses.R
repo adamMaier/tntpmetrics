@@ -28,7 +28,7 @@
 #'     \item{tntpcore:}{ec, ao, dl, cl}
 #'     \item{ipg:}{ca1_a, ca1_b, ca1_c, ca2_overall, ca3_overall, col, rfs_overall}
 #'    }
-#'  See the vignette for more details.
+#'  See the \code{vignette("analyzing_metrics")} for more details.
 #'
 #' @param data Data from a single timepoint. Used in \code{metric_mean}.
 #' @param data1 Data from the initial timepoint. Used in \code{metric_growth}.

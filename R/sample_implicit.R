@@ -32,7 +32,7 @@
 #'   because their small school with only a few classrooms has the same chance as being selected as
 #'   a large school with many classrooms. Default is NULL.
 #' @param random_num is a random number to control the random sampling process so that results are
-#'   reproducible. Defailt is 1.
+#'   reproducible. Default is 1.
 #'
 #' @return A data.frame with equal size as the original data, but sorted differently and with a new
 #'   variabled called \code{in_sample} that is TRUE if the row was selected for the same or FALSE

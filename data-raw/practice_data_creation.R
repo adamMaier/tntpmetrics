@@ -1,9 +1,5 @@
+# Set-Up
 pacman::p_load(dplyr, magrittr, tidyr, splitstackshape)
-
-# Creates a practice data set for all common metrics. Practice data have forced differences
-# between equity groups.
-
-# Set random number
 set.seed(831)
 
 # Create generic class-level data
@@ -84,3 +80,31 @@ ss_data_final <-
 
 usethis::use_data(ss_data_initial, overwrite = TRUE)
 usethis::use_data(ss_data_final, overwrite = TRUE)
+
+# CMS Data from previous project.
+cms_data <-
+  readr::read_csv("~/repos/os/nc_cms/data/clean/school_level/nc_cms_school_sampling_frame.csv")
+
+cms_data %<>%
+  mutate(
+    grade_level_cat = stringr::str_sub(grade_level_cat, 3),
+    soc_percent = 1 - white_percent
+  ) %>%
+  select(
+    school_name, grade_level_cat,
+    frl_percent, soc_percent,
+    spg_score, spg_grade,
+    total_students_2018
+  )
+
+# Impute missing data with district median
+cms_data %<>%
+  mutate_at(
+    vars(frl_percent, soc_percent, spg_score, total_students_2018),
+    ~ ifelse(is.na(.), median(., na.rm = T), .)
+  ) %>%
+  mutate(
+    spg_grade = ifelse(is.na(spg_grade), "I", spg_grade)
+  )
+
+usethis::use_data(cms_data, overwrite = TRUE)
