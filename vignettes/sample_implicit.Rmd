@@ -63,7 +63,7 @@ implicit_sampled_data <- sorted_data %>%
 
 Let's see how much variability we have on `soc_percent` in our sampled data, compared to just randomly selecting 10 schools without implicit stratification.
 
-```{r implicit_manual_part1}
+```{r implicit_manual_part2}
 # Randomly pick 10 schools without stratification
 set.seed(1)
 nonimplicit_sampled_data <- cms_data %>%
