@@ -84,11 +84,11 @@
 #'   by_class = T
 #'  )
 #'
-#' @name tntpmetrics
+#' @name metric_analyses
 NULL
 
 # Function for means at one time-point
-#' @rdname tntpmetrics
+#' @rdname metric_analyses
 #' @export
 metric_mean <- function(data, metric, equity_group = NULL, by_class = F, scaleusewarning = T) {
 
@@ -120,7 +120,7 @@ metric_mean <- function(data, metric, equity_group = NULL, by_class = F, scaleus
 }
 
 # Function for change in scores over time
-#' @rdname tntpmetrics
+#' @rdname metric_analyses
 #' @export
 metric_growth <- function(data1, data2, metric, equity_group = NULL, by_class = F,
                               scaleusewarning = T) {

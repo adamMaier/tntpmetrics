@@ -60,6 +60,7 @@ A data.frame identical to the original except with a new column/variable named a
 
 \examples{
 # Compute the engagement score for each collected survey
-make_metric(ss_data_initial, metric = "engagement")
+test_data <- make_metric(ss_data_initial, metric = "engagement")
+head(test_data)
 
 }

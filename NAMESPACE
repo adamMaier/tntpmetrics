@@ -3,3 +3,7 @@
 export(make_metric)
 export(metric_growth)
 export(metric_mean)
+export(mixed_serpentine)
+export(sample_implicit)
+export(serpentine)
+import(rlang)
