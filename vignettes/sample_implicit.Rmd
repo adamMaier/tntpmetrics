@@ -125,17 +125,17 @@ In the CMS example, let's turn percent FRL and percent SOC into categorical vari
 cms_data <- cms_data %>%
   mutate(
     frl_cat = case_when(
-      frl_percent < 0.25 ~ "< 25%",
-      frl_percent < 0.50 ~ "25-50%",
-      frl_percent < 0.75 ~ "50-75%",
-      frl_percent <= 1.00 ~ "> 75%"
+      .$frl_percent < 0.25 ~ "< 25%",
+      .$frl_percent < 0.50 ~ "25-50%",
+      .$frl_percent < 0.75 ~ "50-75%",
+      .$frl_percent <= 1.00 ~ "> 75%"
     ),
     frl_cat = ordered(frl_cat, levels = c("< 25%", "25-50%", "50-75%", "> 75%")),
     soc_cat = case_when(
-      soc_percent < 0.25 ~ "< 25%",
-      soc_percent <= 0.50 ~ "25-50%",
-      soc_percent <= 0.75 ~ "50-75%",
-      soc_percent <= 1.00 ~ "> 75%"
+      .$soc_percent < 0.25 ~ "< 25%",
+      .$soc_percent <= 0.50 ~ "25-50%",
+      .$soc_percent <= 0.75 ~ "50-75%",
+      .$soc_percent <= 1.00 ~ "> 75%"
     ),
     soc_cat = ordered(soc_cat, levels = c("< 25%", "25-50%", "50-75%", "> 75%"))
   )
