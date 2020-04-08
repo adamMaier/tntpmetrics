@@ -2,7 +2,7 @@
 title: "Sampling for Common Metrics"
 author: "Adam Maier"
 description: >
-  This vignette shows how to use tntpmetric to sample schools, teachers, classrooms, etc. in a way
+  This vignette shows how to use tntpmetrics to sample schools, teachers, classrooms, etc. in a way
   that is representative of the larger population and makes sure that the selecte dunits differ as
   much as possible on the characteristics of interest.
 output: rmarkdown::html_vignette
@@ -41,7 +41,7 @@ head(cms_data)
 ```
 
 ## How does implicit stratification work? It's mostly just sorting data
-To learn more about the specifics of implicit stratification, read the TNTP memo "placeholder_memo_title" (link to Adam's, potentially revised, memo). In short, we sort the by the variable(s) on which we want to ensure variation, pick a random starting spot on this sorted list, and then count every *k* rows to get all of our selected units. The number of steps *k* represents is based on how many units are sampled. For example, there are `tally(cms__data)` schools in the CMS data set. To sample 10 schools, pick a random starting row between 1 and 17, and then count every 17th school until the end of the data. Each school picked along the way is part of the sample.
+To learn more about the specifics of implicit stratification, read the TNTP memo "placeholder_memo_title" (link to Adam's, potentially revised, memo). In short, we sort the by the variable(s) on which we want to ensure variation, pick a random starting spot on this sorted list, and then count every *k* rows to get all of our selected units. The number of steps *k* represents is based on how many units are sampled. For example, there are `r tally(cms_data)` schools in the CMS data set. To sample 10 schools, pick a random starting row between 1 and 17, and then count every 17th school until the end of the data. Each school picked along the way is part of the sample.
 
 Importantly, because we first sorted the data on the characteristics we care about, we ensured that schools are the most spread out they could be on these variables -- i.e., the sort ensures that schools at the top of the data set look different on these variables than schools on the bottom. Thus, when we walk through the data, counting every 17th school, it's unlikely we get a sample of schools that all look the same on these characteristics. In fact, the only time this could happen is if schools in the district don't actually vary much on the characteristics we specify.
 
@@ -89,7 +89,7 @@ cms_data %>%
 
 The data is first sorted (alphabetically) on grade-level, and then within each grade-level the data is sorted in ascending order on the proportion of students receiving FRL. The code above shows where in the data it goes from high schools to middle schools. Notice how the proportion of FRL students makes a **huge** jump from Gariner High to Jay M Robinson Middle. Once the data gets to the next grade-level category, it must start over again from the lowest values of `frl_percent`. This leads to large differences in concurrent rows at these junctures. Though these schools already differ by grade-level, this disconnect means they're very different on other key factors, too. Not only do they differ on their FRL proportion, but because this variable is linked to other characteristics, we see that they're also very different on something like school achievement. These disconnected junctures in the sort are magnified if we sort by even more than two variables.
 
-Instead, we want concurrent rows of the data to be as similar as possible on the characteristics of interest. This is what helps us obtain the most variability possible in our sample. To do this, we must use a sorting approach known a serpentine, where instead of always starting over with an ascending sort at each juncture, we alternate between ascending and descending sorts to ensure the juncture keeps the values as similar as possible. `tntpmetrics` has a built in function to perform serpentine sorts. Let's apply it to the CMS data and look at the same juncture as above.
+Instead, we want concurrent rows of the data to be as similar as possible on the characteristics of interest. This is what helps us obtain the most variability possible in our sample. To do this, we must use a sorting approach known as serpentine, where instead of always starting over with an ascending sort at each juncture, we alternate between ascending and descending sorts to ensure the juncture keeps the values as similar as possible. `tntpmetrics` has a built in function to perform serpentine sorts. Let's apply it to the CMS data and look at the same juncture as above.
 
 ```{r serpentine_sort}
 cms_data %>%
@@ -101,7 +101,7 @@ cms_data %>%
 Now the first middle school in the list is the one with the highest proportion of students receiving FRL. The implicit stratification sample function in `tntpmetrics` uses this serpentine sort, so you do not need to use the function `serpentine` directly, though it's available to you as part of the package if you need it for other purposes, or you need to modify the default sampling approach. It works much like `dplyr::arrange`: simply list the variables you want to serpentine sort.
 
 ### The order of sorting variables matters
-Even with serpentine sorting, you will get a differently sorted list if first sort on grade-level and then FRL percent compared to first sorting on FRL percent and then grade-level. The reasons are obvious, but it's important to point out. In general, it's best to first sort on the variables that are most important to you, as this will be the variable on which your data is *most* spread out. Then, choose variables in order from most to least important. If you sort on many variables, the last variables you include will have a smaller effect on the position, as much of the data order is already "locked in".
+Even with serpentine sorting, you will get a differently sorted list if you first sort on grade-level and then FRL percent compared to first sorting on FRL percent and then grade-level. The reasons are obvious, but it's important to point out. In general, it's best to first sort on the variables that are most important to you, as this will be the variable on which your data is *most* spread out. Then, choose variables in order from most to least important. If you sort on many variables, the last variables you include will have a smaller effect on the position, as much of the data order is already "locked in".
 
 ### Making sorts categorical
 What if we wanted to ensure variability on both percent FRL and SPG Score in a school? The obvious answer is to just include them both in a sort.
@@ -117,10 +117,10 @@ Notice how the SPG score barely seems sorted at all. That is because the data is
 
 When you want to include multiple non-categorical variables in your implicit stratification, you have two options:
 
-1. Don't do it; just pick one non categorical variable. This approach might be worthwhile if the two variables of interest are closely related. In these cases, adding the second variables doesn't add much to the stratification. But if the variables are not closely related, or one variable isn't critically important to ensure variability, your best option is to
-2. Make the variables categorical. This is the more common approach as it allows you to keep both variables in stratification process.
+1. Don't do it; just pick one non categorical variable. This approach might be worthwhile if the two variables of interest are closely related. In these cases, adding the second variable doesn't add much to the stratification. But if the variables are not closely related and it's not not critically important to keep one of the variables as is, your best option is to
+2. Make the variables categorical. This is the more common approach as it allows you to keep both variables in the stratification process.
 
-In the CMS example, let's turn percent FRL and percent SOC into categorical variables. We can also use the categorical letter grade of the SPG Score.
+In the CMS example, let's turn percent FRL and percent SOC into categorical variables.
 
 ```{r make_cat_part2}
 cms_data %<>%
@@ -151,7 +151,7 @@ cms_data %>%
   slice(1:10)
 ```
 
-There, things look better. It's okay to implicitly stratify by a non-categorical variable, but it usually should be your last variables listed, and in most cases you should only have one of these types of variables.
+There, things look better. It's okay to implicitly stratify by a non-categorical variable, but it usually should be your last variable listed, and in most cases you should only have one of these types of variables.
 
 ## Drawing an implicit sample
 
@@ -177,7 +177,7 @@ cms_sample %>%
   filter(in_sample == T)
 ```
 
-This makes comparing sampled schools to non-sampled schools easily.
+This makes comparing sampled schools to non-sampled schools easy.
 
 ```{r implicit_sample_part3}
 cms_sample %>%
@@ -187,7 +187,7 @@ cms_sample %>%
 
 ### Accounting for size differences
 
-The implicit stratification approach outlined above treats each row of data equally. In many cases, that makes sense, for example if each row was a teacher or a classroom. However, in some cases each row of data might represent substantially different number of students. This is often the case when sampling schools. Treating each school equally means that students in small schools are more likely to be studied than students in large schools because the former's school is equally likely to be chosen as the latter, but once the school is chosen students in small schools are more likely to have one of their classrooms visited given the fewer options there.
+The implicit stratification approach outlined above treats each row of data equally. In many cases, that makes sense, for example if each row was a teacher or a classroom. However, in some cases each row of data might represent a substantially different number of subunits, like classrooms or students. This is often the case when sampling schools. Treating each school equally means that students in small schools are more likely to be studied than students in large schools because the former's school is equally likely to be chosen as the latter, but once the school is chosen students in small schools are more likely to have one of their classrooms visited given the fewer options there.
 
 `sample_implicit` includes an option to specify a variable in your data representing a measure of size. It will then account for this size and choose schools with a probability proportional to its size.
 
@@ -248,7 +248,7 @@ cms_data %>%
   select(school_name, grade_level_cat)
 ```
 
-Instead of selecting the same number of schools for each grade-level, we can instead vary how many schools are chosen by providing the map-type function additional information. In this case, we'll use `map2_df` so that we can tell it to use for the value of `n` the corresponding element in a list we give it. In the example below, we want to select 2 high schools, 3 middle schools, 4 primary schools, and 1 "other" school.
+Instead of selecting the same number of schools for each grade-level, we can instead vary how many schools are chosen by providing the map function additional information. In this case, we'll use `map2_df` so that we can tell it to use for the value of `n` the corresponding element in a list we give it. In the example below, we want to select 2 high schools, 3 middle schools, 4 primary schools, and 1 "other" school.
 
 ```{r explicit_implicit_part2, message = F}
 cms_data %>%
@@ -262,7 +262,7 @@ cms_data %>%
   select(school_name, grade_level_cat)
 ```
 
-There above examples assume a familiarity with `purrr` and indeed there are other ways to use `sample_implicit` with other existing R functions meet your needs. The point is to simply highlight how you can build upon `sample_implicit` to accomplish your sampling needs.
+There above examples assume a familiarity with `purrr` and indeed there are other ways to use `sample_implicit` with other existing R functions to meet your needs. The point is to simply highlight how you can build upon `sample_implicit` to accomplish your sampling goals.
 
 ## Questions?
 
