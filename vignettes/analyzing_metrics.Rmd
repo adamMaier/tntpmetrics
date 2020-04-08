@@ -162,6 +162,9 @@ Below are the required column names and associated scales for each metric. See [
     * Other Needed Items: grade_level and form. (form is "Math", "Literacy", "Science", or "Social Studies").
     * Scale: ca1_a, ca1_b, and ca1_c are 0 (No) and 1 (Yes). All other items are 1 (Not Yet), 2 (Somewhat), 3 (Mostly), and 4 (Yes)
     * Note: RFS Overall is only required if observation data contains K-5 Literacy observations.
+* **Grade-Appropriate Assignments**
+    * Items: content, practice, relevance
+    * Scale: 0 (No Opportunity), 1 (Minimal Opportunity), 2 (Sufficient Opportunity)
 
 ### A note about the IPG
 The IPG has the most complicated scoring approach of any of the common metrics. That is because it was originally intended as a diagnostic and development (rather than evaluation) tool, has different components based on the subject matter, has indicators on different scales, and can often have layers of skip logic in the online form used to capture the data. Nevertheless, `make_metric` works just as easily on the IPG as it does on other metrics, but users should be aware of two things:
