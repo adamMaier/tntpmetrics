@@ -104,10 +104,12 @@ make_construct <- function(data, metric, scaleusewarning = T) {
   # Strip data of attributes
   data <- as.data.frame(data)
 
-  iteminfo <- cm_iteminfo(metric)
-  ni <- iteminfo[["ni"]]
-  ri <- iteminfo[["ri"]]
-  sc <- iteminfo[["sc"]]
+  if (metric != "ipg") {
+    iteminfo <- cm_iteminfo(metric)
+    ni <- iteminfo[["ni"]]
+    ri <- iteminfo[["ri"]]
+    sc <- iteminfo[["sc"]]
+  }
 
   if (metric %in% c("engagement", "belonging", "relevance", "expectations", "assignments")) {
     data_name_check(data, needed_items = ni)
