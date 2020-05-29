@@ -158,7 +158,7 @@ data_scale_check_ipg <- function(data) {
 
   # RFS should be on a 1-4 scale (if it exists)
   if ("rfs_overall" %in% names(data)) {
-    rfs_check <- all(data[, "rfs_overall"] %in% 1:4)
+    rfs_check <- all(na.omit(data[, "rfs_overall"]) %in% 1:4)
     if (!rfs_check) {
       stop(
         paste(
