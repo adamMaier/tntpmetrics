@@ -50,12 +50,14 @@ data_name_check_ipg <- function(data) {
   }
 
   # Ensuring form subject and grade_level meet value requirements
-  form_check <- all(na.omit(unique(data$form)) %in% c("Math", "Literacy"))
+  form_check <- all(
+    na.omit(unique(data$form)) %in% c("Math", "Literacy", "Science", "Social Studies")
+  )
   gl_check <- all(na.omit(unique(data$grade_level)) %in% -1:12)
   if (!form_check) {
     stop(
       paste(
-        "subject variable has values other than Math or Literacy.",
+        "form variable has values other than Math, Literacy, Science, or Social Studies",
         "\n",
         "Make sure subject options are spelled correctly with correct capitalization."
       ),
@@ -85,6 +87,22 @@ data_name_check_ipg <- function(data) {
       ),
       call. = FALSE
     )
+  }
+
+  # Science form also has CA 1 D, E and F, and needs a filter on observation type
+  if (NROW(dplyr::filter(data, form == "Science")) > 0) {
+    ca1_science <- c("ca1_d", "ca1_e", "ca1_f", "science_filter")
+    ca1_science_check <- ca1_science[!ca1_science %in% names(data)]
+    if (!rlang::is_empty(ca1_science_check)) {
+      stop(
+        paste(
+          "Data is missing the following variables:",
+          paste0(ca1_science_check, collapse = ", "), "\n",
+          "Make sure they are spelled correctly."
+        ),
+        call. = FALSE
+      )
+    }
   }
 
   # K-5 Literacy form should also have RFS
@@ -125,6 +143,15 @@ data_scale_check <- function(data, needed_items, item_scale) {
 # Function to ensure IPG items are on proper scale. Lists items that are not.
 data_scale_check_ipg <- function(data) {
 
+  # All observations must have a value for form and grade level.
+  if (any(is.na(data$grade_level))) {
+    stop("All observations must have a value for grade-level. NAs are not allowed.")
+  }
+
+  if (any(is.na(data$form))) {
+    stop("All observations must have a value for form. NAs are not allowed.")
+  }
+
   # Core Action 1 indicators should all be 0 (no) and 1 (yes)
   ca_1 <- c("ca1_a", "ca1_b", "ca1_c")
   ca1_check <- purrr::map_lgl(data[, ca_1], ~ all(na.omit(.) %in% 0:1))
@@ -138,6 +165,35 @@ data_scale_check_ipg <- function(data) {
       ),
       call. = FALSE
     )
+  }
+
+  # Repeating with science Core Action 1 indicators and science text filter, if they exist
+  if (NROW(dplyr::filter(data, form == "Science")) > 0) {
+    ca_1_science <- c("ca1_d", "ca1_e", "ca1_f")
+    ca1_science_check <- purrr::map_lgl(data[, ca_1_science], ~ all(na.omit(.) %in% 0:1))
+    ca1_science_check <- ca_1_science[!ca1_science_check]
+    if (!rlang::is_empty(ca1_science_check)) {
+      stop(
+        paste(
+          "The following variables have a value out of scale:", "\n",
+          paste0(ca1_science_check, collapse = ", "), "\n",
+          "All Core Action 1 indicators should be a 0 for 'No' or 1 for 'Yes'."
+        ),
+        call. = FALSE
+      )
+    }
+
+    science_filter_options <- c("Text", "Inquiry and Scientific Practice", "Both", "Neither")
+    science_filter_check <- all(na.omit(data$science_filter) %in% science_filter_options)
+    if (!science_filter_check) {
+      stop(
+        paste(
+          "The variable science_filter has an unexpected value. Values must be one of the",
+          "following options:", "\n",
+          paste0(science_filter_options, collapse = "; ")
+        )
+      )
+    }
   }
 
   # All other variables should be on a 1-4 scale
@@ -277,6 +333,22 @@ construct_maker_ipg <- function(data) {
     col = col - 1
   )
 
+  # Adjust Core Action 1 for science observations
+  data <- dplyr::mutate(
+    data,
+    science1_overall = as.double(ca1_a + ca1_b),
+    science1_overall = dplyr::case_when(
+      science_filter == "Text" & (ca1_c + ca1_d + ca1_e == 3) ~ science1_overall + 1,
+      science_filter == "Text" & (ca1_c + ca1_d + ca1_e != 3) ~ science1_overall,
+      science_filter == "Inquiry and Scientific Practice" ~ science1_overall + ca1_f,
+      science_filter == "Both" & (ca1_c + ca1_d + ca1_e + ca1_f == 4) ~ science1_overall + 1,
+      science_filter == "Both" & (ca1_c + ca1_d + ca1_e + ca1_f != 4) ~ science1_overall,
+      science_filter == "Neither" ~ science1_overall
+    ),
+    ca1_overall = ifelse(form == "Science", science1_overall, ca1_overall),
+    science1_overall = NULL
+  )
+
   # Adjust RFS if exists and create it as missing if not
   if ("rfs_overall" %in% names(data)) {
     data <- dplyr::mutate(data, rfs_overall = rfs_overall - 1)
@@ -295,7 +367,7 @@ construct_maker_ipg <- function(data) {
   if (sum(data$miss_rfs, na.rm = T) > 0 & !is.infinite(sum(data$miss_rfs, na.rm = T))) {
     stop(
       paste(
-        sum(data$miss_lit_k5, na.rm = T), "K-5 Literacy observation(s) dropped because they are",
+        sum(data$miss_rfs, na.rm = T), "K-5 Literacy observation(s) dropped because they are",
         "missing an overall RFS score and missing the Core Actions. These observations need an",
         "overall RFS score or all three Core Actions, or both."
       ),
@@ -308,7 +380,7 @@ construct_maker_ipg <- function(data) {
       paste(
         sum(data$miss_ca), "Observation(s) dropped because of missing score(s) on at least one of",
         "the Core Actions. In many cases, missing scores should be set to the lowest possible value",
-        "or, if it's inelgible, the entire observation should be removed before scoring.",
+        "or, if it's ineligible, the entire observation should be removed before scoring.",
         "Check the scoring guide for more details."
       ),
       call. = F
@@ -318,14 +390,14 @@ construct_maker_ipg <- function(data) {
   if (sum(data$miss_col) > 0) {
     stop(
       paste(
-        sum(data$miss_col), "Observation(s) dropped because of missing score(s) on at Culture of",
+        sum(data$miss_col), "Observation(s) dropped because of missing score(s) on Culture of",
         "Learning. All observations should be rated on Culture of Learning."
       ),
       call. = F
     )
   }
 
-  # Create overall observation scores
+  # Create overall observation scores and return core actions to original scales
   dplyr::mutate(
     data,
     construct = dplyr::case_when(
@@ -335,6 +407,9 @@ construct_maker_ipg <- function(data) {
         0.25 * col + 0.75 * ((rfs_overall + ca1_overall + ca2_overall + ca3_overall) / 4),
       TRUE ~ (col + ca1_overall + ca2_overall + ca3_overall) / 4
     ),
+    ca2_overall = ca2_overall + 1,
+    ca3_overall = ca3_overall + 1,
+    col = col + 1,
     miss_col = NULL,
     miss_ca = NULL,
     miss_rfs = NULL

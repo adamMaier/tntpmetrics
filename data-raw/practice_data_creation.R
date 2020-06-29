@@ -81,6 +81,56 @@ ss_data_final <-
 usethis::use_data(ss_data_initial, overwrite = TRUE)
 usethis::use_data(ss_data_final, overwrite = TRUE)
 
+# Create fake IPG data (without class characteristics)
+ipg_data <-
+  data.frame(
+    observation_number = 1:100,
+    form = sample(c("Literacy", "Math", "Science", "Social Studies"), 100, replace = T),
+    grade_level = sample(0:12, 100, replace = T),
+    ca1_a = sample(0:1, 100, replace = T),
+    ca1_b = sample(0:1, 100, replace = T),
+    ca1_c = sample(0:1, 100, replace = T),
+    ca1_d = sample(0:1, 100, replace = T),
+    ca1_e = sample(0:1, 100, replace = T),
+    ca1_f = sample(0:1, 100, replace = T),
+    ca2_overall = sample(1:4, 100, replace = T),
+    ca3_overall = sample(1:4, 100, replace = T),
+    col = sample(1:4, 100, replace = T),
+    rfs_overall = sample(1:4, 100, replace = T),
+    science_filter = sample(
+      c("Text", "Inquiry and Scientific Practice", "Both", "Neither"),
+      100,
+      replace = T
+    ),
+    stringsAsFactors = F
+  ) %>%
+  mutate(
+    grade_level = ifelse(
+      grade_level <= 5 & form %in% c("Science", "Social Studies"),
+      grade_level + 6,
+      grade_level
+    ),
+    ca1_c = ifelse(
+      form == "Science" & science_filter %in% c("Inquiry and Scientific Practice", "Neither"),
+      NA,
+      ca1_c
+    ),
+    ca1_d = ifelse(form == "Science" & !science_filter %in% c("Text", "Both"), NA, ca1_d),
+    ca1_e = ifelse(form == "Science" & !science_filter %in% c("Text", "Both"), NA, ca1_e),
+    ca1_f = ifelse(
+      form == "Science" & !science_filter %in% c("Inquiry and Scientific Practice", "Both"),
+      NA,
+      ca1_f
+    ),
+    rfs_overall = ifelse(form == "Literacy" & grade_level <= 5, rfs_overall, NA)
+  ) %>%
+  mutate_at(
+    vars(ca1_d, ca1_e, ca1_f, science_filter),
+    ~ ifelse(form != "Science", NA, .)
+  )
+
+usethis::use_data(ipg_data, overwrite = TRUE)
+
 # CMS Data from previous project.
 cms_data <-
   readr::read_csv("~/repos/os/nc_cms/data/clean/school_level/nc_cms_school_sampling_frame.csv")

@@ -26,9 +26,9 @@ library(tntpmetrics)
 library(dplyr)
 ```
 
-TNTP uses common metrics to learn from the work project teams are doing. By using similar metrics across different projects, TNTP teams are better able to track their progress reliably and coordinate work across contexts. Common metrics also serve as the core of organization-wide goals. Though nearly all projects are using common metrics somewhere in their work, collecting common data does not guarantee each project will score or aggregate the metrics similarly. And despite scoring guidance, using valuable anlayst time to walk through the steps to calculate metrics, or score teams' goals is not ideal.
+TNTP uses common metrics to learn from the work project teams are doing. By using similar metrics across different projects, TNTP teams are better able to track their progress reliably and coordinate work across contexts. Common metrics also serve as the core of organization-wide goals. Though nearly all projects are using common metrics somewhere in their work, collecting common data does not guarantee each project will score or aggregate the metrics similarly. And despite scoring guidance, using valuable analyst time to walk through the steps to calculate metrics, or score teams' goals is not ideal.
 
-The `tntpmetrics` package includes three handy functions that start with raw, project-collected data and calculate individual common metric scores, summarize average common metrics scores for an entire project, compare common metric scores between (typically student sub-) groups, and analyze changes in metric scores over time. Most of the work of these functions is checking for potential errors or inconsisties in the data -- such as data not being on the proper scale, or missing but needed variables. These functions attempt to anticipate all of the potential issues that could occur between collecting raw data and calculating simple means from it. This document shows you how to use these three functions.
+The `tntpmetrics` package includes three handy functions that start with raw, project-collected data and calculate individual common metric scores, summarize average common metrics scores for an entire project, compare common metric scores between (typically student sub-) groups, and analyze changes in metric scores over time. Most of the work of these functions is checking for potential errors or inconsistencies in the data -- such as data not being on the proper scale, or missing but needed variables. These functions attempt to anticipate all of the potential issues that could occur between collecting raw data and calculating simple means from it. This document shows you how to use these three functions.
 
 ## Current available metrics
 Currently, `tntpmetrics` has functions to calculate and work with the following common metrics:
@@ -38,10 +38,10 @@ Currently, `tntpmetrics` has functions to calculate and work with the following 
 * **Teacher and leader surveys:** Expectations
 * **Assignments:** Grade-Appropriate Assignments
 
-## Practice Data Sets: ss_data_initial and ss_data_final
-To demonstrate how to apply the common metric functions in `tntpmetrics`, we will use two sets of fake student survey data. The data contains 1,000 student survey responses from 26 classes at the beginning of a project (`ss_data_initial.dta`) and another 1,000 student survey responses from the same 26 classes at the end of the project (`ss_data_final.dta`). 
+## Practice Data Sets: ss_data_initial, ss_data_final, and ipg_data
+To demonstrate how to apply the common metric functions in `tntpmetrics`, we will use two sets of fake student survey data. The data contains 1,000 student survey responses from 26 classes at the beginning of a project (`ss_data_initial.rda`) and another 1,000 student survey responses from the same 26 classes at the end of the project (`ss_data_final.rda`). 
 
-This data automatically somes with the `tntpmetrics` package. Both data sets have the same variable/column names, which include a value for each survey question from the *Engagement*, *Relevance*, and *Belonging* constructs. Specfically, these metrics are based on the following survey items:
+This data automatically comes with the `tntpmetrics` package. Both data sets have the same variable/column names, which include a value for each survey question from the *Engagement*, *Relevance*, and *Belonging* constructs. Specifically, these metrics are based on the following survey items:
 
 * Engagement
     + eng_interest ("*What we were learning was interesting.*")
@@ -64,6 +64,8 @@ These surveys items take on values of 0 (for Not True), 1 (for A Little True), 2
 ```{r data}
 head(ss_data_initial)
 ```
+
+Because of the additional needed variables to use these functions with IPG data, we will also practice with the fake observation data `ipg_data.rda`. This data automatically comes with the `tntpmetrics` package. The data contains 100 observations using the IPG. All four subjects are represented.
 
 ## Calculating Common Metrics
 `tntpmetrics` contains a simple function called `make_metric` to attach a new column/variable to your data with the value of the scored common metric. The new column will always have the prefix `cm_` followed by the name of the metric. For example, the *engagement* metric is simply the sum of the four engagement survey items. To use `make_metric`, simply provide the data set you want to use, and the 
@@ -158,19 +160,21 @@ Below are the required column names and associated scales for each metric. See [
     * Items: ec, ao, dl, cl
     * Scale: 1 (Ineffective), 2 (Minimally Effective), 3 (Developing), 4 (Proficient), 5 (Skillful)
 * **IPG**
-    * Items: ca1_a, ca1_b, ca1_c, ca2_overall, ca3_overall, col, rfs_overall
-    * Other Needed Items: grade_level and form. (form is "Math", "Literacy", "Science", or "Social Studies").
-    * Scale: ca1_a, ca1_b, and ca1_c are 0 (No) and 1 (Yes). All other items are 1 (Not Yet), 2 (Somewhat), 3 (Mostly), and 4 (Yes)
-    * Note: RFS Overall is only required if observation data contains K-5 Literacy observations.
+    * Items: All observations need ca1_a, ca1_b, ca1_c, ca2_overall, ca3_overall, col; K-5 Literacy observations also need rfs_overall; Science observations also need ca1_d, ca1_e, and ca1_f.
+    * Other Needed Items: grade_level and form. (form is "Math", "Literacy", "Science", or "Social Studies"). Science observations also need science_filter, which is "Text", "Inquiry and Scientific Practice", "Both", or "Neither".
+    * Scale: ca1_a, ca1_b, ca1_c, ca1_d, ca1_e, and ca1_f are 0 (No) and 1 (Yes). All other items are 1 (Not Yet), 2 (Somewhat), 3 (Mostly), and 4 (Yes)
+    * Note: RFS Overall is only required if observation data contains K-5 Literacy observations. Core Action 1 D - F are only required if data contains science observations.
 * **Grade-Appropriate Assignments**
     * Items: content, practice, relevance
     * Scale: 0 (No Opportunity), 1 (Minimal Opportunity), 2 (Sufficient Opportunity)
 
 ### A note about the IPG
-The IPG has the most complicated scoring approach of any of the common metrics. That is because it was originally intended as a diagnostic and development (rather than evaluation) tool, has different components based on the subject matter, has indicators on different scales, and can often have layers of skip logic in the online form used to capture the data. Nevertheless, `make_metric` works just as easily on the IPG as it does on other metrics, but users should be aware of two things:
+The IPG has the most complicated scoring approach of any of the common metrics. That is because it was originally intended as a diagnostic and development (rather than evaluation) tool, has different components based on the subject matter, has indicators on different scales, and can often have layers of skip logic in the online form used to capture the data. Nevertheless, `make_metric` works just as easily on the IPG as it does on other metrics, but users should be aware of three things:
 
 * The function expects the Core Action 1 indicators to be on a 0-1 scale, but the other Core Action scores (and RFS Overall and Culture of Learning) to be on a 1-4 scale. This is to make the function work more easily on data coming out of Academic Diagnostic forms, which tend to use these scales. `make_metric` will automatically place everything on the proper scale.
 * `make_metric` will not account for observations that should be excluded. For example, some Literacy observations were unrateable because they focused on narrative writing. `make_metric` does not expect any of these type of skip-logic filters that often accompany the online Academic Diagnostic form, so it's up to the analyst to first exclude observations that should not be included based on the business rules. Similarly, because of the online skip logic, there are occasions where Core Actions 2 and 3 should be set to the lowest possible value because the observer was skipped past the questions. If these values are left as NA, `make_metric` will return NAs for the overall common metric score. The analyst must apply the appropriate business rules *before* using `make_metric`.
+
+Because of the somewhat increased complexity, there are additional IPG examples at the end of this vignette.
 
 ## Goals Analysis
 In most cases, making the common metric is just an intermediate step to scoring the metric for goals purposes. `tntpmetric` has two functions that should make all the necessary goals calculations for you. In both cases, *you do not need* to create the metric ahead of time. Just provide the function your raw data, indicate the metric of interest and type of analysis needed.
@@ -262,6 +266,94 @@ metric_growth(
   by_class = T
 )
 ```
+
+## IPG Examples
+Analyzing IPG data requires additional variables beyond those used directly in scoring the construct. This is because the IPG calculates the construct differently based on the subject and grade-level of the observation. Though some of these calculations are slightly more involved, you can use the functions in `tntpmetrics` in the same way as the examples above. You just need to make sure that each observation has all the necessary variables.
+
+### IPG data should be long and tidy
+`tntpmetrics` expects your IPG data to be long and tidy: each row is a separate observation, and each column should represent just one thing. That is, you should only have one column titled `ca2_overall` (representing the overall score to Core Action 2); you should not have a separate variable for each subject (i.e., you should not have math2_overall, rlc2_overall, science2_overall, etc.), as this would not be "tidy" because that column now contains information on two things: subjects and core action 2 scores. Instead, you must have a separate column/variable called `form` in your data indicating the subject on which the IPG was applied. Depending on the project, this might require you to compile all of your IPG data from separate forms in WordPress/Formidable before using the `tntpmetrics` package.
+
+### Additional needed variables
+When working with the IPG, all observations will need a variable called `form` which must be "Literacy", "Math", "Science", or "Social Studies". All observations will also need a variable called `grade_level`, which is numeric and can range from -1 to 12, where -1 is Pre-K and 0 is Kindergarten.
+
+All literacy observations that take place in a Pre-K to 5th grade classroom must also have a variable called `rfs_overall` which represents the overall score on the reading foundation skills.
+
+Science observations must have additional Core Action 1 domains `ca1_d`, `ca1_e`, and `ca1_f`. How these additional domains get scored depends on the value to a gatekeeper or filter question from the form: "Did the lesson focus on a text or inquiry and scientific practice (experimentation, application, modeling, analysis, etc.)? Note that “texts” in this context also means other scientifically appropriate mediums of communication, like grade-appropriate videos, data sets, models, etc.". Thus, all science observations must also have a variable called `science_filter` which must have values of "Text", "Inquiry and Scientific Practice", "Both", or "Neither". 
+
+### Calculating observation scores
+If you have all of the needed variables, you can create the overall observation score just as we did in the above examples:
+
+```{r ipg_construct}
+ipg_data %>%
+  make_metric(metric = "ipg") %>%
+  select(ends_with("overall"), col, cm_ipg) %>%
+  head()
+```
+
+In the above, notice that Core Actions 2 and 3, and Culture of Learning were rescaled in order to calculate the IPG construct (`cm_ipg`) but are returned to you in their orignal scale of 1-4.
+
+But note what happens if you do not have the variable called `form`:
+
+```{r ipg_construct_error1, error = T}
+ipg_data %>%
+  select(-form) %>%
+  make_metric(metric = "ipg")
+```
+
+... Or if you don't have a variable called `grade_level`:
+
+```{r ipg_construct_error2, error = T}
+ipg_data %>%
+  select(-grade_level) %>%
+  make_metric(metric = "ipg")
+```
+
+... Or if either of these takes unexpected values:
+
+```{r ipg_construct_error3, error = T}
+ipg_data %>%
+  mutate(form = ifelse(row_number() == 1, "Blarg", form)) %>% 
+  make_metric(metric = "ipg")
+```
+
+```{r ipg_construct_error4, error = T}
+ipg_data %>%
+  mutate(grade_level = ifelse(row_number() == 1, 15, grade_level)) %>% 
+  make_metric(metric = "ipg")
+```
+
+In fact, NAs are not allowed for `grade-level` or `form` because they determine how the construct is scored. You will get an error if any of your data rows have NAs in these columns:
+
+```{r ipg_construct_error5, error = T}
+ipg_data %>%
+  mutate(form = ifelse(row_number() == 1, NA, form)) %>% 
+  make_metric(metric = "ipg")
+```
+
+### Science observation scores
+The (at the time of this writing) new science IPG form has more Core Action 1 subdomain ratings to account for the variety of lessons science observers might see. `tntpmetrics` accounts for these scoring approaches, but you must include a variable called `science_filter` in your data to tell the function which Core Action 1 values to expect. Without this variable, you will get an error:
+
+```{r ipg_construct_science, error = T}
+ipg_data %>%
+  filter(form == "Science") %>%
+  make_metric(metric = "ipg") %>%
+  select(science_filter, starts_with("ca"), col, cm_ipg) %>%
+  head()
+
+ipg_data %>%
+  filter(form == "Science") %>%
+  select(-science_filter) %>%
+  make_metric(metric = "ipg")
+```
+
+### IPG goals
+If you have all of the needed variables with proper, allowable values, then the functions in `tntpmetrics` to calculate means (overall or by group) or changes over time work identically to the student survey examples above. For instance:
+
+```{r ipg_goals}
+ipg_data %>%
+  metric_mean(metric = "ipg")
+```
+
 
 ## Questions?
 

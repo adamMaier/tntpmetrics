@@ -23,7 +23,9 @@
 #'     \item{expectations:}{exp_mastergl, exp_toochallenging, exp_oneyear, exp_different,
 #'       exp_overburden, exp_began}
 #'     \item{tntpcore:}{ec, ao, dl, cl}
-#'     \item{ipg:}{ca1_a, ca1_b, ca1_c, ca2_overall, ca3_overall, col, rfs_overall}
+#'     \item{ipg:} All observations must have: {form, grade_level, ca1_a, ca1_b, ca1_c, ca2_overall,
+#'       ca3_overall, col}; K-5 Literacy observations must also have {rfs_overall}; Science
+#'       observations must also have: {ca1_d, ca1_e, ca1_f}.
 #'    }
 #'  See the \code{vignette("analyzing_metrics")} for more details.
 #'
