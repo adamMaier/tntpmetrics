@@ -7,7 +7,7 @@ description: >
   much as possible on the characteristics of interest.
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{analyzing_tntp_commonmetrics}
+  %\VignetteIndexEntry{sampling_tntp_commonmetrics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
