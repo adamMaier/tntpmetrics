@@ -3,11 +3,11 @@ title: "Sampling for Common Metrics"
 author: "Adam Maier"
 description: >
   This vignette shows how to use tntpmetrics to sample schools, teachers, classrooms, etc. in a way
-  that is representative of the larger population and makes sure that the selecte dunits differ as
+  that is representative of the larger population and makes sure that the selected units differ as
   much as possible on the characteristics of interest.
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{sampling_tntp_commonmetrics}
+  %\VignetteIndexEntry{Samplngi for common metrics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
