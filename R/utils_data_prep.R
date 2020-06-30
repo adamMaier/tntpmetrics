@@ -333,21 +333,23 @@ construct_maker_ipg <- function(data) {
     col = col - 1
   )
 
-  # Adjust Core Action 1 for science observations
-  data <- dplyr::mutate(
-    data,
-    science1_overall = as.double(ca1_a + ca1_b),
-    science1_overall = dplyr::case_when(
-      science_filter == "Text" & (ca1_c + ca1_d + ca1_e == 3) ~ science1_overall + 1,
-      science_filter == "Text" & (ca1_c + ca1_d + ca1_e != 3) ~ science1_overall,
-      science_filter == "Inquiry and Scientific Practice" ~ science1_overall + ca1_f,
-      science_filter == "Both" & (ca1_c + ca1_d + ca1_e + ca1_f == 4) ~ science1_overall + 1,
-      science_filter == "Both" & (ca1_c + ca1_d + ca1_e + ca1_f != 4) ~ science1_overall,
-      science_filter == "Neither" ~ science1_overall
-    ),
-    ca1_overall = ifelse(form == "Science", science1_overall, ca1_overall),
-    science1_overall = NULL
-  )
+  # Adjust Core Action 1 for science observations, if any
+  if (NROW(dplyr::filter(data, form == "Science")) > 0) {
+    data <- dplyr::mutate(
+      data,
+      science1_overall = as.double(ca1_a + ca1_b),
+      science1_overall = dplyr::case_when(
+        science_filter == "Text" & (ca1_c + ca1_d + ca1_e == 3) ~ science1_overall + 1,
+        science_filter == "Text" & (ca1_c + ca1_d + ca1_e != 3) ~ science1_overall,
+        science_filter == "Inquiry and Scientific Practice" ~ science1_overall + ca1_f,
+        science_filter == "Both" & (ca1_c + ca1_d + ca1_e + ca1_f == 4) ~ science1_overall + 1,
+        science_filter == "Both" & (ca1_c + ca1_d + ca1_e + ca1_f != 4) ~ science1_overall,
+        science_filter == "Neither" ~ science1_overall
+      ),
+      ca1_overall = ifelse(form == "Science", science1_overall, ca1_overall),
+      science1_overall = NULL
+    )
+  }
 
   # Adjust RFS if exists and create it as missing if not
   if ("rfs_overall" %in% names(data)) {
