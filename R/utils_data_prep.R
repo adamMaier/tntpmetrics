@@ -354,8 +354,10 @@ construct_maker_ipg <- function(data) {
   # Adjust RFS if exists and create it as missing if not
   if ("rfs_overall" %in% names(data)) {
     data <- dplyr::mutate(data, rfs_overall = rfs_overall - 1)
+    rfs_init <- T
   } else {
     data <- dplyr::mutate(data, rfs_overall = NA_integer_)
+    rfs_init <- F
   }
 
   # Identify rows that need to be dropped because of missingness. Then print and drop
@@ -426,6 +428,13 @@ construct_maker_ipg <- function(data) {
     miss_litk5 = NULL,
     miss_ca_nolitk5 = NULL
   )
+
+  # Adjust back RFS if exists and delete it as missing if not
+  if (rfs_init) {
+    data <- dplyr::mutate(data, rfs_overall = rfs_overall + 1)
+  } else {
+    data <- dplyr::select(-rfs_overall)
+  }
 }
 
 
