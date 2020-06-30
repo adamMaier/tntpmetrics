@@ -411,10 +411,10 @@ construct_maker_ipg <- function(data) {
   }
 
   # Create overall observation scores and return core actions to original scales
-  dplyr::mutate(
+  data <- dplyr::mutate(
     data,
     construct = dplyr::case_when(
-      form == "Literacy" & grade_level <= 5 & miss_ca ~
+      form == "Literacy" & grade_level <= 5 & miss_ca & !is.na(rfs_overall) ~
         0.75 * rfs_overall + 0.25 * col,
       form == "Literacy" & grade_level <= 5 & !miss_ca & !is.na(rfs_overall) ~
         0.25 * col + 0.75 * ((rfs_overall + ca1_overall + ca2_overall + ca3_overall) / 4),
@@ -435,6 +435,8 @@ construct_maker_ipg <- function(data) {
   } else {
     data <- dplyr::select(-rfs_overall)
   }
+
+  return(data)
 }
 
 
