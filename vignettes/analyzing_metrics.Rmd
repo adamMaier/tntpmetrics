@@ -141,7 +141,7 @@ ss_data_initial %>%
 ```
 
 ### Required column names and scales for each common metric
-Below are the required column names and associated scales for each metric. See [The Goals Guidance Hub](https://tools.tntp.org/confluence/pages/viewpage.action?spaceKey=PROJ&title=Goals+Guidance+Hub#ContractandTeamGoalsHub--248085037) for more details
+Below are the required column names and associated scales for each metric. See [The Goals Guidance Hub](https://tools.tntp.org/confluence/pages/viewpage.action?spaceKey=PROJ&title=Goals+Guidance+Hub#ContractandTeamGoalsHub--248085037) for more details. Note that these are the **names** of the columns needed in your data. It doesn't mean that every row must have a value on each of these variables. It can be okay if some of these variables have NA values for specific rows. For example, K-5 Literacy observations on the IPG require either all of the Core Actions (ca1_a, ca1_b, ca1_c, ca2_overall, ca3_overall) **and/or** rfs_overall. If an observation has all the core actions it still needs a variable called rfs_overall, but the value can be NA.
 
 * **Engagement**
     * Items: eng_like, eng_losttrack, eng_interest, eng_moreabout.

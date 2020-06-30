@@ -26,9 +26,15 @@
 #'     \item{expectations:}{exp_mastergl, exp_toochallenging, exp_oneyear, exp_different,
 #'       exp_overburden, exp_began}
 #'     \item{tntpcore:}{ec, ao, dl, cl}
-#'     \item{ipg:}{ca1_a, ca1_b, ca1_c, ca2_overall, ca3_overall, col, rfs_overall}
+#'     \item{ipg:} All observations must have: {form, grade_level, ca1_a, ca1_b, ca1_c, ca2_overall,
+#'       ca3_overall, col}; K-5 Literacy observations must also have {rfs_overall}; Science
+#'       observations must also have: {ca1_d, ca1_e, ca1_f, rfs_filter}.
 #'    }
-#'  See the \code{vignette("analyzing_metrics")} for more details.
+#'    Note that these are the NAMES of the variables needed in your data. It can be okay if some of these
+#'    variables have NA values for specific rows. For example, K-5 Literacy observations on the IPG require
+#'    either all of the Core Actions (ca1_a, ca1_b, ca1_c, ca2_overall, ca3_overall) and/or rfs_overall. If
+#'    an observation has all the core actions it still needs a variable called rfs_overall, but the value
+#'    can just be NA. See the \code{vignette("analyzing_metrics")} for more details.
 #'
 #' @param data Data from a single timepoint. Used in \code{metric_mean}.
 #' @param data1 Data from the initial timepoint. Used in \code{metric_growth}.
