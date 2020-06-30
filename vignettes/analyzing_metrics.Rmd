@@ -330,6 +330,27 @@ ipg_data %>%
   make_metric(metric = "ipg")
 ```
 
+### Missing ratings
+
+`tntpmetric` will attempt to create an overall IPG score for every observation in your data. However, it can only do so if all the needed domain ratings are included. In cases where an observation is missing a required domain rating -- for example, an observation is missing an overall score on Core Action 2 or Culture of Learning -- it will return an NA for the overall IPG construct value and tell you how many observations were missing key information. 
+
+In the example below, we can see this warning if we purposefully drop some key domain ratings in the data before applying the `make_metric` function:
+
+```{r ipg_missing_warning1, error = T}
+ipg_data %>%
+  mutate(
+    col = ifelse(row_number() == 1, NA, col),
+    ca3_overall = ifelse(row_number() == 2, NA, ca3_overall),
+    rfs_overall = ifelse(row_number() == 14, NA, rfs_overall),
+    ca2_overall = ifelse(row_number() == 14, NA, ca2_overall)
+  ) %>% 
+  make_metric(metric = "ipg") %>%
+  select(observation_number, ends_with("overall"), col, cm_ipg) %>%
+  slice(1:5, 14)
+```
+
+Note that these messages are warnings, and the code will still run. But the affected observatinos now have NAs for their value for the overall construct (`cm_ippg`).
+
 ### Science observation scores
 The (at the time of this writing) new science IPG form has more Core Action 1 subdomain ratings to account for the variety of lessons science observers might see. `tntpmetrics` accounts for these scoring approaches, but you must include a variable called `science_filter` in your data to tell the function which Core Action 1 values to expect. Without this variable, you will get an error:
 

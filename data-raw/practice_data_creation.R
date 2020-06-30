@@ -78,8 +78,8 @@ ss_data_final <-
   spread(key = item, value = response) %>%
   select(-(class_mean_0_3_t1:class_sd_0_3))
 
-usethis::use_data(ss_data_initial, overwrite = TRUE)
-usethis::use_data(ss_data_final, overwrite = TRUE)
+usethis::use_data(ss_data_initial, overwrite = FALSE)
+usethis::use_data(ss_data_final, overwrite = FALSE)
 
 # Create fake IPG data (without class characteristics)
 ipg_data <-

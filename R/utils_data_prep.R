@@ -361,25 +361,33 @@ construct_maker_ipg <- function(data) {
     data,
     miss_col = is.na(col),
     miss_ca = is.na(ca1_overall) | is.na(ca2_overall) | is.na(ca3_overall),
-    miss_rfs = form == "Literacy" & grade_level <= 5 & is.na(rfs_overall) & miss_ca
+    miss_litk5 = form == "Literacy" & grade_level <= 5 & is.na(rfs_overall) & miss_ca,
+    miss_ca_nolitk5 = dplyr::case_when(
+      miss_litk5 ~ F,
+      form == "Literacy" & grade_level <= 5 & !is.na(rfs_overall) & miss_ca ~ F,
+      TRUE ~ miss_ca
+    )
   )
 
-  if (sum(data$miss_rfs, na.rm = T) > 0 & !is.infinite(sum(data$miss_rfs, na.rm = T))) {
-    stop(
+  if (sum(data$miss_litk5, na.rm = T) > 0 & !is.infinite(sum(data$miss_litk5, na.rm = T))) {
+    warning(
       paste(
-        sum(data$miss_rfs, na.rm = T), "K-5 Literacy observation(s) dropped because they are",
-        "missing an overall RFS score and missing the Core Actions. These observations need an",
-        "overall RFS score or all three Core Actions, or both."
+        sum(data$miss_litk5, na.rm = T), "K-5 Literacy observation(s)",
+        "were missing an overall RFS score and some Core Actions.",
+        "These observations need an overall RFS score or all three Core",
+        "Actions, or both in order to have an overall IPG score calculated."
       ),
       call. = F
     )
   }
 
-  if (sum(data$miss_ca) > 0) {
-    stop(
+  if (sum(data$miss_ca_nolitk5) > 0) {
+    warning(
       paste(
-        sum(data$miss_ca), "Observation(s) dropped because of missing score(s) on at least one of",
-        "the Core Actions. In many cases, missing scores should be set to the lowest possible value",
+        sum(data$miss_ca_nolitk5), "Observation(s) have a missing score",
+        "on at least one of the Core Actions. Observations must be rated on all",
+        "Core Actions in order to have an overall IPG score calculated.",
+        "In many cases, missing scores should be set to the lowest possible value",
         "or, if it's ineligible, the entire observation should be removed before scoring.",
         "Check the scoring guide for more details."
       ),
@@ -388,10 +396,11 @@ construct_maker_ipg <- function(data) {
   }
 
   if (sum(data$miss_col) > 0) {
-    stop(
+    warning(
       paste(
-        sum(data$miss_col), "Observation(s) dropped because of missing score(s) on Culture of",
-        "Learning. All observations should be rated on Culture of Learning."
+        sum(data$miss_col), "Observation(s) have a missing score on Culture of",
+        "Learning. Observations must be rated on Culture of Learning in order",
+        "to have an overall IPG score calculated."
       ),
       call. = F
     )
@@ -403,7 +412,7 @@ construct_maker_ipg <- function(data) {
     construct = dplyr::case_when(
       form == "Literacy" & grade_level <= 5 & miss_ca ~
         0.75 * rfs_overall + 0.25 * col,
-      form == "Literacy" & grade_level <= 5 & !miss_ca ~
+      form == "Literacy" & grade_level <= 5 & !miss_ca & !is.na(rfs_overall) ~
         0.25 * col + 0.75 * ((rfs_overall + ca1_overall + ca2_overall + ca3_overall) / 4),
       TRUE ~ (col + ca1_overall + ca2_overall + ca3_overall) / 4
     ),
@@ -412,9 +421,9 @@ construct_maker_ipg <- function(data) {
     col = col + 1,
     miss_col = NULL,
     miss_ca = NULL,
-    miss_rfs = NULL
+    miss_litk5 = NULL,
+    miss_ca_nolitk5 = NULL
   )
-
 }
 
 
