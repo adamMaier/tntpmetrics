@@ -433,7 +433,7 @@ construct_maker_ipg <- function(data) {
   if (rfs_init) {
     data <- dplyr::mutate(data, rfs_overall = rfs_overall + 1)
   } else {
-    data <- dplyr::select(-rfs_overall)
+    data <- dplyr::select(data, -rfs_overall)
   }
 
   return(data)
