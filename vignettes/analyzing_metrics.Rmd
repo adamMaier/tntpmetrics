@@ -290,7 +290,7 @@ ipg_data %>%
   head()
 ```
 
-In the above, notice that Core Actions 2 and 3, and Culture of Learning were rescaled in order to calculate the IPG construct (`cm_ipg`) but are returned to you in their orignal scale of 1-4.
+In the above, notice that Core Actions 2 and 3, and Culture of Learning were rescaled in order to calculate the IPG construct (`cm_ipg`) but are returned to you in their original scale of 1-4. Additionally, the oveall Core Action 1 score is created as a new variable (`ca1_overall`) as only the subdomains are included in the original data.
 
 But note what happens if you do not have the variable called `form`:
 
