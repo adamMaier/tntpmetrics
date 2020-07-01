@@ -96,7 +96,7 @@ data_name_check_ipg <- function(data) {
     if (!rlang::is_empty(ca1_science_check)) {
       stop(
         paste(
-          "Data is missing the following variables:",
+          "Data contains science observation(s) but is missing the following variables:",
           paste0(ca1_science_check, collapse = ", "), "\n",
           "Make sure they are spelled correctly."
         ),
@@ -152,6 +152,13 @@ data_scale_check_ipg <- function(data) {
     stop("All observations must have a value for form. NAs are not allowed.")
   }
 
+  # All science observations must have a science filter
+  if (NROW(dplyr::filter(data, form == "Science")) > 0) {
+    if (any(is.na(dplyr::filter(data, form == "Science")$science_filter))) {
+      stop("All science observations must have a value for science_filter. NAs are not allowed.")
+    }
+  }
+
   # Core Action 1 indicators should all be 0 (no) and 1 (yes)
   ca_1 <- c("ca1_a", "ca1_b", "ca1_c")
   ca1_check <- purrr::map_lgl(data[, ca_1], ~ all(na.omit(.) %in% 0:1))
@@ -190,7 +197,8 @@ data_scale_check_ipg <- function(data) {
         paste(
           "The variable science_filter has an unexpected value. Values must be one of the",
           "following options:", "\n",
-          paste0(science_filter_options, collapse = "; ")
+          paste0(science_filter_options, collapse = "; "),
+          call. = F
         )
       )
     }
