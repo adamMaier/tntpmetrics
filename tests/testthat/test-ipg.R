@@ -126,7 +126,7 @@ test_that("Error produced with out of scale IPG variable", {
   expect_error(make_metric(mutate(ipg_data, form = NA), "ipg"), "NAs are not allowed")
   expect_error(make_metric(mutate(ipg_data, grade_level = "99"), "ipg"), "values other than")
   expect_error(make_metric(mutate(ipg_data, grade_level = NA), "ipg"), "NAs are not allowed")
-  expect_error(make_metric(mutate(ipg_data, science_filter = "99"), "ipg"), "values other than")
+  expect_error(make_metric(mutate(ipg_data, science_filter = "99"), "ipg"), "unexpected value")
   expect_error(make_metric(mutate(ipg_data, science_filter = NA), "ipg"), "NAs are not allowed")
   expect_error(make_metric(mutate(ipg_data, ca1_a = 99), "ipg"), "out of scale")
   expect_error(make_metric(mutate(ipg_data, ca1_b = 99), "ipg"), "out of scale")
