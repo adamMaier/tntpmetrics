@@ -46,10 +46,13 @@
 #'   If you are confident your data is on the right scale, you can suppress the warning by setting
 #'   to \code{TRUE}.
 #'
-#' @return A data.frame identical to the original except with a new column/variable named as the
-#'   input to metric with a cm_ prefic (e.g., \code{cm_engagement}, \code{cm_ipg}, etc.) that has
-#'   the value of the scored metric. Currently, attirbutes of original data.frame (like groups) are
-#'   not preserved.
+#' @return A data.frame identical to the original except with new columns/variables named as the
+#'   input to metric with a cm_ prefix (e.g., \code{cm_engagement}, \code{cm_ipg}, etc.) that has
+#'   the value of the scored metric. For metrics that have a specific cut-point above which scores
+#'   designate something meaningful (e.g., expectations score above 18 represent "high expectations")
+#'   another new variable is also created with a cm_binary_ prefix (e.g., \code{cm_binary_expectations}).
+#'   This variable is logical (TRUE/FALSE) with values of true implying the row has, for example, high
+#'   expectations. Currently, attributes of original data.frame (like groups) are not preserved.
 #'
 #' @examples
 #' # Compute the engagement score for each collected survey
@@ -67,18 +70,21 @@ cm_iteminfo <- function(metric) {
     ni <- c("eng_like", "eng_losttrack", "eng_interest", "eng_moreabout")
     ri <- NULL
     sc <- 0:3
+    cp <- 8
   }
 
   if (metric == "belonging") {
     ni <- c("tch_problem", "bel_ideas", "bel_fitin", "tch_interestedideas")
     ri <- NULL
     sc <- 0:3
+    cp <- 8
   }
 
   if (metric == "relevance") {
     ni <- c("rel_asmuch", "rel_future", "rel_outside", "rel_rightnow")
     ri <- NULL
     sc <- 0:3
+    cp <- 8
   }
 
   if (metric == "expectations") {
@@ -86,25 +92,29 @@ cm_iteminfo <- function(metric) {
             "exp_began")
     ri <- c("exp_toochallenging", "exp_different", "exp_overburden", "exp_began")
     sc <- 0:5
+    cp <- 18
   }
 
   if (metric == "assignments") {
     ni <- c("content", "practice", "relevance")
     ri <- NULL
     sc <- 0:2
+    cp <- 4
   }
 
   if (metric == "tntpcore") {
     ni <- c("ec", "ao", "dl", "cl")
     ri <- NULL
     sc <- 1:5
+    cp <- NULL
   }
 
-  list("ni" = ni, "ri" = ri, "sc" = sc)
+  list("ni" = ni, "ri" = ri, "sc" = sc, "cp" = cp)
 }
 
 # Unexported function to make construct called "construct". Exported version below names it the
-# metric
+# metric. For some metrics, there are two constructs made, the linear scale version and the binary
+# version, e.g. "high expectations".
 make_construct <- function(data, metric, scaleusewarning = T) {
 
   # Strip data of attributes
@@ -115,6 +125,7 @@ make_construct <- function(data, metric, scaleusewarning = T) {
     ni <- iteminfo[["ni"]]
     ri <- iteminfo[["ri"]]
     sc <- iteminfo[["sc"]]
+    cp <- iteminfo[["cp"]]
   }
 
   if (metric %in% c("engagement", "belonging", "relevance", "expectations", "assignments")) {
@@ -122,6 +133,7 @@ make_construct <- function(data, metric, scaleusewarning = T) {
     data_scale_check(data, needed_items = ni, item_scale = sc)
     if (scaleusewarning) data_scaleuse_check(data, needed_items = ni, item_scale = sc)
     data <- construct_maker_sum(data, needed_items = ni, item_scale = sc, reversed_items = ri)
+    data <- dplyr::mutate(data, construct_binary = construct >= cp)
   }
 
   if (metric == "tntpcore") {
@@ -147,6 +159,7 @@ make_construct <- function(data, metric, scaleusewarning = T) {
       )
     }
     data <- construct_maker_ipg(data)
+    data <- dplyr::mutate(data, construct_binary = construct >= 2)
   }
 
   data
@@ -158,5 +171,6 @@ make_construct <- function(data, metric, scaleusewarning = T) {
 make_metric <- function(data, metric, scaleusewarning = T) {
   out <- make_construct(data, metric, scaleusewarning)
   names(out)[names(out) == "construct"] <- paste0("cm_", metric)
+  names(out)[names(out) == "construct_binary"] <- paste0("cm_binary_", metric)
   out
 }

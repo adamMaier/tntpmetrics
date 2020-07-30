@@ -77,6 +77,9 @@ make_metric(data = ss_data_initial, metric = "engagement") %>%
   head()
 ```
 
+### Binary version of common metric
+Note that in the above, there were **two** new variables created: `cm_engagement` and `cm_binary_engagement`. For many common metrics, there is a cut-point on the metric scale above which, scores take on a special meaning. For engagement, for example, scores of 8 or above imply that the student in that particular response was "engaged". The variable `cm_binary_engagement` will be `TRUE` if the engagement score is above this cut-point and FALSE if not. For most common  metrics, the guidance is to set goals around the actual metric score, not the binary version, as the binary version reduces the nuance of the data. However, we know teams are interested in these binary classifications to `cm_binary_` variables are always created when you run `make_metric` as long as the metric has a defined cut-point. (The metric tntpcore does not have a defined cut-point.)
+
 ### Checking for common errors
 `make_metric` automatically checks for the most common data issues. 
 
@@ -188,6 +191,15 @@ metric_mean(ss_data_initial, metric = "belonging", by_class = T)
 
 `metric_means` estimates this mean using a multilevel model framework, and takes advantage of the R package `emmeans` to print the output. The overall mean is displayed in the first element of the returned list under `emmean`. For a more robust result, you are also provided the appropriate Standard Error (`SE`) and the lower and upper bounds of the 95% Confidence Interval (`lower.CL` and `upper.cl`)
 
+### Using the binary version of the variable
+The function `metric_mean` also works on the binary version of the construct. Simply set the option `use_binary` to `TRUE`:
+
+```{r metric_mean_binary}
+metric_mean(ss_data_initial, metric = "engagement", use_binary = T, by_class = T)
+```
+
+Because the outcome is not a TRUE/FALSE binary, the mean will always be a proportion between 0 and 1. In the above example, the value 0.238 implies that 23.8% of responses in this data set were "engaged".
+
 ### Calculating the average common metric score for different groups
 Many projects have equity-based goals that require looking at mean common metric scores for different types of classrooms. For example, the student survey data has a variable `class_frl_cat` indicating whether the response comes from a class with at least 50% of students receiving free or reduced price lunch or a class where fewer than 50% of students receive FRL. To look at the results for each group, simply include the column name as the `equity_group`:
 
@@ -230,8 +242,23 @@ metric_growth(
 
 In this example, the mean expectation score initially was 4.93, but increased to 5.99 by the final data collection. This difference was a growth of 1.06 points.
 
-### Calculating differences in growth over time between equity groups
+### Using the binary version of the variable
+The function `metric_growth` also works on the binary version of the construct. Simply set the option `use_binary` to `TRUE`:
 
+
+```{r metric_growth_binary}
+metric_growth(
+  data1 = ss_data_initial, 
+  data2 = ss_data_final, 
+  metric = "engagement",
+  use_binary = T,
+  by_class = T
+)
+```
+
+As before, remember that the values represent proportions between 0 and 1. In the example above, 23% of responses in the initial data were engaging and 33% were engaging in the final data. The difference (0.0922) represents about 9 percentage points.
+
+### Calculating differences in growth over time between equity groups
 You can also examine how growth compared between different groups by specifying he equity group:
 
 ```{r metric_growth_equity}

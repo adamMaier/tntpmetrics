@@ -41,6 +41,11 @@
 #' @param data2 Data from the final timepoint. Used in \code{metric_growth}.
 #' @param metric Quoted name of the common metric. Options are "engagement", "belonging",
 #'   "relevance", "assignments", "tntpcore", or "ipg".
+#' @param use_binary A logical (T/F) option to use the binary version of the metric. The default is
+#'   FALSE so that the mean and growth calculations are based on the overall metric value. If you
+#'   want these calculations done on the binary version (e.g., looking at the percent of teachers with
+#'   'high expectations' rather than the average expectations score) then set this option to TRUE.
+#'   Note that the metric tntpcore has no binary version.
 #' @param equity_group Optional quoted name of the categorical column/variable in data that contains
 #'   the equity group designation. For example, if data has an indicator variable called
 #'   \code{class_frl} that is either "Under 50% students with FRL" or "50% or more students with
@@ -96,7 +101,8 @@ NULL
 # Function for means at one time-point
 #' @rdname metric_analyses
 #' @export
-metric_mean <- function(data, metric, equity_group = NULL, by_class = F, scaleusewarning = T) {
+metric_mean <- function(data, metric, use_binary = F, equity_group = NULL, by_class = F,
+                        scaleusewarning = T) {
 
   # Check if data has class ID if specified
   if (by_class) data_classid_check(data)
@@ -116,6 +122,12 @@ metric_mean <- function(data, metric, equity_group = NULL, by_class = F, scaleus
 
   data <- make_construct(data = data, metric = metric, scaleusewarning = scaleusewarning)
 
+  # Use binary version of construct? If TRUE, then override output to be tested
+  if (use_binary) {
+    data <- dplyr::mutate(data, construct = construct_binary, construct_binary = NULL)
+  }
+
+  # Get means
   if (!is.null(equity_group)) {
     data <- equity_check(data, equity_group = equity_group)
     out <- cm_equity_mean(data, need_classid = by_class)
@@ -128,7 +140,7 @@ metric_mean <- function(data, metric, equity_group = NULL, by_class = F, scaleus
 # Function for change in scores over time
 #' @rdname metric_analyses
 #' @export
-metric_growth <- function(data1, data2, metric, equity_group = NULL, by_class = F,
+metric_growth <- function(data1, data2, metric, use_binary = T, equity_group = NULL, by_class = F,
                               scaleusewarning = T) {
 
   # Check if data has class ID if specified
@@ -153,6 +165,13 @@ metric_growth <- function(data1, data2, metric, equity_group = NULL, by_class = 
   data1 <- make_construct(data = data1, metric = metric, scaleusewarning = scaleusewarning)
   data2 <- make_construct(data = data2, metric = metric, scaleusewarning = scaleusewarning)
 
+  # Use binary version of construct? If TRUE, then override output to be tested
+  if (use_binary) {
+    data1 <- dplyr::mutate(data1, construct = construct_binary, construct_binary = NULL)
+    data2 <- dplyr::mutate(data2, construct = construct_binary, construct_binary = NULL)
+  }
+
+  # Get growth
   if (!is.null(equity_group)) {
     data1 <- equity_check(data1, equity_group = equity_group)
     data2 <- equity_check(data2, equity_group = equity_group)
