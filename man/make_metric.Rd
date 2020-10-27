@@ -23,10 +23,13 @@ If you are confident your data is on the right scale, you can suppress the warni
 to \code{TRUE}.}
 }
 \value{
-A data.frame identical to the original except with a new column/variable named as the
-  input to metric with a cm_ prefic (e.g., \code{cm_engagement}, \code{cm_ipg}, etc.) that has
-  the value of the scored metric. Currently, attirbutes of original data.frame (like groups) are
-  not preserved.
+A data.frame identical to the original except with new columns/variables named as the
+  input to metric with a cm_ prefix (e.g., \code{cm_engagement}, \code{cm_ipg}, etc.) that has
+  the value of the scored metric. For metrics that have a specific cut-point above which scores
+  designate something meaningful (e.g., expectations score of at least 12 represent "high expectations")
+  another new variable is also created with a cm_binary_ prefix (e.g., \code{cm_binary_expectations}).
+  This variable is logical (TRUE/FALSE) with values of true implying the row has, for example, high
+  expectations. Currently, attributes of original data.frame (like groups) are not preserved.
 }
 \description{
 \code{make_metric} takes raw data containing all of the indicators, survey items, etc. needed
@@ -50,12 +53,17 @@ A data.frame identical to the original except with a new column/variable named a
     \item{engagement:}{eng_like, eng_losttrack, eng_interest, eng_moreabout}
     \item{belonging:}{tch_problem, bel_ideas, bel_fitin, tch_interestedideas}
     \item{relevance:}{rel_asmuch, rel_future, rel_outside, rel_rightnow}
-    \item{expectations:}{exp_mastergl, exp_toochallenging, exp_oneyear, exp_different,
-      exp_overburden, exp_began}
+    \item{expectations:}{exp_fairtomaster, exp_oneyearenough, exp_allstudents, exp_appropriate}
     \item{tntpcore:}{ec, ao, dl, cl}
-    \item{ipg:}{ca1_a, ca1_b, ca1_c, ca2_overall, ca3_overall, col, rfs_overall}
+    \item{ipg:} All observations must have: {form, grade_level, ca1_a, ca1_b, ca1_c, ca2_overall,
+      ca3_overall, col}; K-5 Literacy observations must also have {rfs_overall}; Science
+      observations must also have: {ca1_d, ca1_e, ca1_f, science_filter}.
    }
- See the \code{vignette("analyzing_metrics")} for more details.
+   Note that these are the NAMES of the variables needed in your data. It can be okay if some of these
+   variables have NA values for specific rows. For example, K-5 Literacy observations on the IPG require
+   either all of the Core Actions (ca1_a, ca1_b, ca1_c, ca2_overall, ca3_overall) and/or rfs_overall. If
+   an observation has all the core actions it still needs a variable called rfs_overall, but the value
+   can just be NA. See the \code{vignette("analyzing_metrics")} for more details.
 }
 
 \examples{

@@ -65,7 +65,7 @@ sampled_cars \%>\%
 
 # Using implicit stratification gets us more variation on variables of interest than just randomly
 # selecting rows. For example, if we chose 3 cars, we might not get variability on the variables
-# of interest. In this case, implicit_sample got us more variablity on mpg than a simple random
+# of interest. In this case, sample_implicit got us more variablity on mpg than a simple random
 # sample
 set.seed(12)
 simplesample <- sample_n(mtcars, 3)

@@ -20,8 +20,7 @@
 #'     \item{engagement:}{eng_like, eng_losttrack, eng_interest, eng_moreabout}
 #'     \item{belonging:}{tch_problem, bel_ideas, bel_fitin, tch_interestedideas}
 #'     \item{relevance:}{rel_asmuch, rel_future, rel_outside, rel_rightnow}
-#'     \item{expectations:}{exp_mastergl, exp_toochallenging, exp_oneyear, exp_different,
-#'       exp_overburden, exp_began}
+#'     \item{expectations:}{exp_fairtomaster, exp_oneyearenough, exp_allstudents, exp_appropriate}
 #'     \item{tntpcore:}{ec, ao, dl, cl}
 #'     \item{ipg:} All observations must have: {form, grade_level, ca1_a, ca1_b, ca1_c, ca2_overall,
 #'       ca3_overall, col}; K-5 Literacy observations must also have {rfs_overall}; Science
@@ -49,7 +48,7 @@
 #' @return A data.frame identical to the original except with new columns/variables named as the
 #'   input to metric with a cm_ prefix (e.g., \code{cm_engagement}, \code{cm_ipg}, etc.) that has
 #'   the value of the scored metric. For metrics that have a specific cut-point above which scores
-#'   designate something meaningful (e.g., expectations score above 18 represent "high expectations")
+#'   designate something meaningful (e.g., expectations score of at least 12 represent "high expectations")
 #'   another new variable is also created with a cm_binary_ prefix (e.g., \code{cm_binary_expectations}).
 #'   This variable is logical (TRUE/FALSE) with values of true implying the row has, for example, high
 #'   expectations. Currently, attributes of original data.frame (like groups) are not preserved.
@@ -88,11 +87,10 @@ cm_iteminfo <- function(metric) {
   }
 
   if (metric == "expectations") {
-    ni <- c("exp_mastergl", "exp_toochallenging", "exp_oneyear", "exp_different", "exp_overburden",
-            "exp_began")
-    ri <- c("exp_toochallenging", "exp_different", "exp_overburden", "exp_began")
+    ni <- c("exp_fairtomaster)", "exp_oneyearenough", "exp_allstudents", "exp_appropriate")
+    ri <- NULL
     sc <- 0:5
-    cp <- 18
+    cp <- 12
   }
 
   if (metric == "assignments") {

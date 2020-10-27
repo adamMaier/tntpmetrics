@@ -9,6 +9,7 @@
 metric_mean(
   data,
   metric,
+  use_binary = F,
   equity_group = NULL,
   by_class = F,
   scaleusewarning = T
@@ -18,6 +19,7 @@ metric_growth(
   data1,
   data2,
   metric,
+  use_binary = T,
   equity_group = NULL,
   by_class = F,
   scaleusewarning = T
@@ -28,6 +30,12 @@ metric_growth(
 
 \item{metric}{Quoted name of the common metric. Options are "engagement", "belonging",
 "relevance", "assignments", "tntpcore", or "ipg".}
+
+\item{use_binary}{A logical (T/F) option to use the binary version of the metric. The default is
+FALSE so that the mean and growth calculations are based on the overall metric value. If you
+want these calculations done on the binary version (e.g., looking at the percent of teachers with
+'high expectations' rather than the average expectations score) then set this option to TRUE.
+Note that the metric tntpcore has no binary version.}
 
 \item{equity_group}{Optional quoted name of the categorical column/variable in data that contains
 the equity group designation. For example, if data has an indicator variable called
@@ -86,12 +94,17 @@ A list of results including the overall mean or mean by equity group (for
     \item{engagement:}{eng_like, eng_losttrack, eng_interest, eng_moreabout}
     \item{belonging:}{tch_problem, bel_ideas, bel_fitin, tch_interestedideas}
     \item{relevance:}{rel_asmuch, rel_future, rel_outside, rel_rightnow}
-    \item{expectations:}{exp_mastergl, exp_toochallenging, exp_oneyear, exp_different,
-      exp_overburden, exp_began}
+    \item{expectations:}{exp_fairtomaster, exp_oneyearenough, exp_allstudents, exp_appropriate}
     \item{tntpcore:}{ec, ao, dl, cl}
-    \item{ipg:}{ca1_a, ca1_b, ca1_c, ca2_overall, ca3_overall, col, rfs_overall}
+    \item{ipg:} All observations must have: {form, grade_level, ca1_a, ca1_b, ca1_c, ca2_overall,
+      ca3_overall, col}; K-5 Literacy observations must also have {rfs_overall}; Science
+      observations must also have: {ca1_d, ca1_e, ca1_f, science_filter}.
    }
- See the \code{vignette("analyzing_metrics")} for more details.
+   Note that these are the NAMES of the variables needed in your data. It can be okay if some of these
+   variables have NA values for specific rows. For example, K-5 Literacy observations on the IPG require
+   either all of the Core Actions (ca1_a, ca1_b, ca1_c, ca2_overall, ca3_overall) and/or rfs_overall. If
+   an observation has all the core actions it still needs a variable called rfs_overall, but the value
+   can just be NA. See the \code{vignette("analyzing_metrics")} for more details.
 }
 
 \examples{

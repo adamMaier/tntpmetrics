@@ -156,9 +156,8 @@ Below are the required column names and associated scales for each metric. See [
     * Items: tch_problem, bel_ideas, bel_fitin, tch_interestedideas
     * Scale: 0 (Not True), 1 (A Little True), 2 (Mostly True), or 3 (Very True).
 * **Teacher or Leader Expectations**
-    * Items: exp_mastergl, exp_toochallenging, exp_oneyear, exp_different, exp_overburden, exp_began
+    * Items: exp_fairtomaster, exp_oneyearenough, exp_allstudents, exp_appropriate
     * Scale: 0 (Strongly Disagree), 1 (Disagree), 2 (Somewhat Disagree), 3 (Somewhat Agree), 4 (Agree), and 5 (Strongly Agree).
-    * Note: Even though some items are reverse coded, the data expects each item in its raw form. Do not reverse code items ahead of time.
 * **TNTP Core**
     * Items: ec, ao, dl, cl
     * Scale: 1 (Ineffective), 2 (Minimally Effective), 3 (Developing), 4 (Proficient), 5 (Skillful)
@@ -240,7 +239,7 @@ metric_growth(
 )
 ```
 
-In this example, the mean expectation score initially was 4.93, but increased to 5.99 by the final data collection. This difference was a growth of 1.06 points.
+In this example, the mean engagement score initially was 4.93, but increased to 5.99 by the final data collection. This difference was a growth of 1.06 points.
 
 ### Using the binary version of the variable
 The function `metric_growth` also works on the binary version of the construct. Simply set the option `use_binary` to `TRUE`:
