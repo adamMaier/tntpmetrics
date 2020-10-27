@@ -87,7 +87,7 @@ cm_iteminfo <- function(metric) {
   }
 
   if (metric == "expectations") {
-    ni <- c("exp_fairtomaster)", "exp_oneyearenough", "exp_allstudents", "exp_appropriate")
+    ni <- c("exp_fairtomaster", "exp_oneyearenough", "exp_allstudents", "exp_appropriate")
     ri <- NULL
     sc <- 0:5
     cp <- 12
