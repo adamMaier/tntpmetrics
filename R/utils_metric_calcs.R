@@ -11,7 +11,7 @@ cm_mean <- function(data, need_classid) {
   if (need_classid) {
     data <- dplyr::mutate(data, class_id = as.character(class_id))
     model <- suppressMessages(
-      lme4::lmer(construct ~ 1 + (1 | class_id), data = data)
+      lmerTest::lmer(construct ~ 1 + (1 | class_id), data = data)
     )
   } else {
     model <- lm(construct ~ 1, data = data)
@@ -58,7 +58,7 @@ cm_growth <- function(data_1, data_2, need_classid) {
   if (need_classid) {
     full_data <- dplyr::mutate(full_data, class_id = as.character(class_id))
     model <- suppressMessages(
-      lme4::lmer(construct ~ 1 + time + (1 | class_id), data = full_data)
+      lmerTest::lmer(construct ~ 1 + time + (1 | class_id), data = full_data)
     )
   } else {
     model <- lm(construct ~ 1 + time, data = full_data)
@@ -88,7 +88,7 @@ cm_equity_mean <- function(data, need_classid) {
     data <- dplyr::filter(data, !is.na(equity_group))
     data <- dplyr::mutate(data, class_id = as.character(class_id))
     model <- suppressMessages(
-      lme4::lmer(construct ~ 1 + equity_group + (1 | class_id), data = data)
+      lmerTest::lmer(construct ~ 1 + equity_group + (1 | class_id), data = data)
     )
   } else {
     model <- lm(construct ~ 1 +  equity_group, data = data)
@@ -145,7 +145,7 @@ cm_equity_growth <- function(data_1, data_2, need_classid) {
     full_data <- dplyr::filter(full_data, !is.na(equity_group))
     full_data <- dplyr::mutate(full_data, class_id = as.character(class_id))
     model <- suppressMessages(
-      lme4::lmer(construct ~ 1 + time * equity_group + (1 | class_id), data = full_data)
+      lmerTest::lmer(construct ~ 1 + time * equity_group + (1 | class_id), data = full_data)
     )
   } else {
     model <- lm(construct ~ 1 + time * equity_group, data = full_data)
