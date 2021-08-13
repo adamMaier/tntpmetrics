@@ -94,10 +94,12 @@ A list of results including the overall mean or mean by equity group (for
     \item{engagement:}{eng_like, eng_losttrack, eng_interest, eng_moreabout}
     \item{belonging:}{tch_problem, bel_ideas, bel_fitin, tch_interestedideas}
     \item{relevance:}{rel_asmuch, rel_future, rel_outside, rel_rightnow}
-    \item{expectations_old:}{exp_allstudents, exp_toochallenging, exp_oneyear, exp_different, exp_overburden, exp_began}
     \item{expectations:}{exp_fairtomaster, exp_oneyearenough, exp_allstudents, exp_appropriate}
+    \item{expectations_old:}{exp_allstudents, exp_toochallenging, exp_oneyear, exp_different, exp_overburden, exp_began}
     \item{tntpcore:}{ec, ao, dl, cl}
-    \item{ipg:}All observations must have: {form, grade_level, ca1_a, ca1_b, ca1_c, ca2_overall, ca3_overall, col}; K-5 Literacy observations must also have {rfs_overall}; Science observations must also have: {ca1_d, ca1_e, ca1_f, science_filter}
+    \item{ipg:}{form, grade_level, ca1_a, ca1_b, ca1_c, ca2_overall, ca3_overall, col.
+    K-5 Literacy observations must also have rfs_overall.
+    Science observations must also have ca1_d, ca1_e, ca1_f, and science_filter}
     \item{assignments:}{content, relevance, practice}
    }
    Note that these are the NAMES of the variables needed in your data. It can be okay if some of these
