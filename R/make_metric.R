@@ -20,21 +20,27 @@
 #'     \item{engagement:}{eng_like, eng_losttrack, eng_interest, eng_moreabout}
 #'     \item{belonging:}{tch_problem, bel_ideas, bel_fitin, tch_interestedideas}
 #'     \item{relevance:}{rel_asmuch, rel_future, rel_outside, rel_rightnow}
+#'     \item{expectations_old:}{exp_allstudents, exp_toochallenging, exp_oneyear, exp_different, exp_overburden, exp_began}
 #'     \item{expectations:}{exp_fairtomaster, exp_oneyearenough, exp_allstudents, exp_appropriate}
 #'     \item{tntpcore:}{ec, ao, dl, cl}
 #'     \item{ipg:} All observations must have: {form, grade_level, ca1_a, ca1_b, ca1_c, ca2_overall,
 #'       ca3_overall, col}; K-5 Literacy observations must also have {rfs_overall}; Science
 #'       observations must also have: {ca1_d, ca1_e, ca1_f, science_filter}.
+#'     \item{assignments:}{content, relevance, practice}
 #'    }
 #'    Note that these are the NAMES of the variables needed in your data. It can be okay if some of these
 #'    variables have NA values for specific rows. For example, K-5 Literacy observations on the IPG require
 #'    either all of the Core Actions (ca1_a, ca1_b, ca1_c, ca2_overall, ca3_overall) and/or rfs_overall. If
 #'    an observation has all the core actions it still needs a variable called rfs_overall, but the value
 #'    can just be NA. See the \code{vignette("analyzing_metrics")} for more details.
+#'    Note on Expectations. The items used to measure expectations shifted from a collection of six,
+#'    mostly reverse-coded worded items to four positively worded items. Both expectations metrics are available,
+#'    with the current 4-item expectations metric known as "expectations" and the older 6-item expectations
+#'    metric known as "expectations_old". See the \code{vignette("analyzing_metrics")} for more details.
 #'
 #' @param data Data from a single timepoint. Used in \code{tntpmetric_mean}.
 #' @param metric Quoted name of the common metric. Options are "engagement", "belonging",
-#'   "relevance", "assignments", "tntpcore", or "ipg".
+#'   "relevance", "assignments", "expectations", "expectations_old", tntpcore", or "ipg".
 #' @param scaleusewarning A logical (T/F) indicating whether function should generate a warning when
 #'   not all values of a scale are used. For example, student survey data that only contains values
 #'   of 1s and 2s could mean that data is on a 1-4 scale, when it should be on a 0-3 scale. When
@@ -86,6 +92,13 @@ cm_iteminfo <- function(metric) {
     cp <- 8
   }
 
+  if (metric == "expectations_old") {
+    ni <- c("exp_allstudents", "exp_toochallenging", "exp_oneyear", "exp_different", "exp_overburden", "exp_began")
+    ri <- c("exp_toochallenging", "exp_different", "exp_overburden", "exp_began")
+    sc <- 0:5
+    cp <- 18
+  }
+
   if (metric == "expectations") {
     ni <- c("exp_fairtomaster", "exp_oneyearenough", "exp_allstudents", "exp_appropriate")
     ri <- NULL
@@ -126,7 +139,7 @@ make_construct <- function(data, metric, scaleusewarning = T) {
     cp <- iteminfo[["cp"]]
   }
 
-  if (metric %in% c("engagement", "belonging", "relevance", "expectations", "assignments")) {
+  if (metric %in% c("engagement", "belonging", "relevance", "expectations", "expectations_old", "assignments")) {
     data_name_check(data, needed_items = ni)
     data_scale_check(data, needed_items = ni, item_scale = sc)
     if (scaleusewarning) data_scaleuse_check(data, needed_items = ni, item_scale = sc)

@@ -35,7 +35,7 @@ Currently, `tntpmetrics` has functions to calculate and work with the following 
 
 * **Student surveys:** Engagement, Relevance, and Belonging
 * **Observation tools:** IPG and TNTP Core
-* **Teacher and leader surveys:** Expectations
+* **Teacher and leader surveys:** Expectations (both the current items and the older items)
 * **Assignments:** Grade-Appropriate Assignments
 
 ## Practice Data Sets: ss_data_initial, ss_data_final, and ipg_data
@@ -147,28 +147,83 @@ ss_data_initial %>%
 Below are the required column names and associated scales for each metric. See [The Goals Guidance Hub](https://tools.tntp.org/confluence/pages/viewpage.action?spaceKey=PROJ&title=Goals+Guidance+Hub#ContractandTeamGoalsHub--248085037) for more details. Note that these are the **names** of the columns needed in your data. It doesn't mean that every row must have a value on each of these variables. It can be okay if some of these variables have NA values for specific rows. For example, K-5 Literacy observations on the IPG require either all of the Core Actions (ca1_a, ca1_b, ca1_c, ca2_overall, ca3_overall) **and/or** rfs_overall. If an observation has all the core actions it still needs a variable called rfs_overall, but the value can be NA.
 
 * **Engagement**
-    * Items: eng_like, eng_losttrack, eng_interest, eng_moreabout.
+    * Metric name to use in package: `metric = engagement`
+    * Items: ("*We spend time in class on things that...*")
+      + eng_interest ("*What we were learning was interesting.*")
+      + eng_like ("*I liked what we did in class.*")
+      + eng_losttrack ("*I was so into what we were learning I lost track of time.*")
+      + eng_moreabout ("*I thought more about what we were learning than anything else.*")
     * Scale: 0 (Not True), 1 (A Little True), 2 (Mostly True), or 3 (Very True).
 * **Relevance**
-    * Items: rel_asmuch, rel_future, rel_outside, rel_rightnow
+    * Metric name to use in package: `metric = relevance`
+    * Items: ("*We spend time in class on things that...*")
+      + rel_asmuch ("*Will help me learn just as much as kids in other schools.*")
+      + rel_future ("*Are important to my future goals.*")
+      + rel_outside ("*I can use outside of school.*")
+      + rel_rightnow ("*Are important to my life right now.*")
     * Scale: 0 (Not True), 1 (A Little True), 2 (Mostly True), or 3 (Very True).
 * **Belonging**
-    * Items: tch_problem, bel_ideas, bel_fitin, tch_interestedideas
+    * Metric name to use in package: `metric = belonging`
+    * Items:
+      + bel_ideas ("*In this class, my ideas really count.*")
+      + tch_interestedideas ("*In this class, my teacher is interested in my ideas.*")
+      + bel_fitin ("*In this class, I feel like I fit in.*")
+      + tch_problem ("*I could talk to my teacher for this class if I had a problem.*")
     * Scale: 0 (Not True), 1 (A Little True), 2 (Mostly True), or 3 (Very True).
-* **Teacher or Leader Expectations**
-    * Items: exp_fairtomaster, exp_oneyearenough, exp_allstudents, exp_appropriate
+* **Teacher or Leader Expectations - CURRENT Version**
+    * Metric name to use in package: `metric = expectations`
+    * Items:
+      + exp_fairtomaster ("*It’s fair to expect students in this class to master these standards by the end of the year.*")
+      + exp_oneyearenough ("*One year is enough time for students in this class to master these standards.*")
+      + exp_allstudents ("*All students in my class can master the grade-level standards by the end of the year.*")
+      + exp_appropriate ("*The standards are appropriate for the students in this class.*")
+    * Scale: 0 (Strongly Disagree), 1 (Disagree), 2 (Somewhat Disagree), 3 (Somewhat Agree), 4 (Agree), and 5 (Strongly Agree).
+* **Teacher or Leader Expectations - OLD Version**
+    * Metric name to use in package: `metric = expectation_old`
+    * Items:
+      + exp_allstudents ("*All students in my class can master the grade-level standards by the end of the year.*")
+      + exp_toochallenging ("*The standards are too challenging for students in my class.*")
+      + exp_oneyear ("*One year is enough time for students in my class to master the standards.*")
+      + exp_different ("*Students in my class need something different than what is outlined in the standards.*")
+      + exp_overburden ("*Students in my class are overburdened by the demands of the standards.*")
+      + exp_began ("*Because of where students began the year, I spend nearly all of my time on standards from earlier grades.*")
     * Scale: 0 (Strongly Disagree), 1 (Disagree), 2 (Somewhat Disagree), 3 (Somewhat Agree), 4 (Agree), and 5 (Strongly Agree).
 * **TNTP Core**
-    * Items: ec, ao, dl, cl
+    * Metric name to use in package: `metric = tntpcore`
+    * Items:
+      + ec ("*Essential Content*")
+      + ao ("*Academic Ownership*")
+      + dl ("*Demonstration of Learning*")
+      + cl ("*Culture of Learning*")
     * Scale: 1 (Ineffective), 2 (Minimally Effective), 3 (Developing), 4 (Proficient), 5 (Skillful)
 * **IPG**
-    * Items: All observations need ca1_a, ca1_b, ca1_c, ca2_overall, ca3_overall, col; K-5 Literacy observations also need rfs_overall; Science observations also need ca1_d, ca1_e, and ca1_f.
-    * Other Needed Items: grade_level and form. (form is "Math", "Literacy", "Science", or "Social Studies"). Science observations also need science_filter, which is "Text", "Inquiry and Scientific Practice", "Both", or "Neither".
+    * Metric name to use in package: `metric = ipg`
+    * Items: All observations need
+      + ca1_a ("*Core Action 1A*")
+      + ca1_b ("*Core Action 1B*")
+      + ca1_c ("*Core Action 1C*")
+      + ca2_overall ("*Core Action 2 Overall*")
+      + ca3_overall ("*Core Action 3 Overall*")
+      + col
+    * Items for K-5 Literacy observations also required are
+      + rfs_overall ("*Reading Foundation Skills Overall*")
+    * Items for science observations also required are
+      + ca1_d ("*Core Action 1D*")
+      + ca1_e ("*Core Action 1E*")
+      + ca1_f ("*Core Action 1F*")
+      + science_filter (*"Text", "Inquiry and Scientific Practice", "Both", or "Neither".*)
+    * Other Needed Items are:
+      + grade_level ("*Numeric grade-level*")
+      + form ("Math", "Literacy", "Science", or "Social Studies"). 
     * Scale: ca1_a, ca1_b, ca1_c, ca1_d, ca1_e, and ca1_f are 0 (No) and 1 (Yes). All other items are 1 (Not Yet), 2 (Somewhat), 3 (Mostly), and 4 (Yes)
     * Note: RFS Overall is only required if observation data contains K-5 Literacy observations. Core Action 1 D - F are only required if data contains science observations.
 * **Grade-Appropriate Assignments**
+    * Metric name to use in package: `metric = assignments`
     * Items: content, practice, relevance
     * Scale: 0 (No Opportunity), 1 (Minimal Opportunity), 2 (Sufficient Opportunity)
+
+### A note about the expectations metric
+The items used to measure expectations shifted from a collection of six, mostly reverse-coded worded items to  four positively worded items. Both expectations metrics are available, with the current 4-item expectations metric known as "expectations" and the older 6-item expectations metric known as "expectations_old". That is, to use the older 6-item expectations metric in this package set `metric = expectations_old` and to use the current 4-item expectations metric set `metric = expectations`.
 
 ### A note about the IPG
 The IPG has the most complicated scoring approach of any of the common metrics. That is because it was originally intended as a diagnostic and development (rather than evaluation) tool, has different components based on the subject matter, has indicators on different scales, and can often have layers of skip logic in the online form used to capture the data. Nevertheless, `make_metric` works just as easily on the IPG as it does on other metrics, but users should be aware of three things:
