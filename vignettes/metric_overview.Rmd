@@ -1,0 +1,227 @@
+---
+title: "Overview of Creating Metrics"
+author: "Shane Orr"
+output: rmarkdown::html_vignette
+description: >
+  This vignette provides an overview of the make_metrric function.
+vignette: >
+  %\VignetteIndexEntry{metric_overview}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, warning=FALSE, message=FALSE}
+library(tntpmetrics)
+library(dplyr)
+```
+
+## Calculating metrics with `make_metric`
+
+`tntpmetrics` contains a simple function called `make_metric` to attach a new column/variable to your data with the value of the scored common metric. The new column will always have the prefix `cm_` followed by the name of the metric. For example, the *engagement* metric is simply the sum of the four engagement survey items. To use `make_metric`, simply provide the data set you want to use, and the 
+metric you want calculated, making sure to put the latter in quotes. The result is your data but with a new variable `cm_engagement`. The function also tells you how many rows of data did not have a construct created because at least one of the survey items was missing.
+
+```{r make_metric_example}
+make_metric(data = ss_data_initial, metric = "engagement") %>%
+  select(response_id, starts_with("eng_"), starts_with("cm_")) %>%
+  head()
+```
+
+### Binary version of common metric
+
+Note that in the above, there were **two** new variables created: `cm_engagement` and `cm_binary_engagement`. For many common metrics, there is a cut-point on the metric scale above which, scores take on a special meaning. For engagement, for example, scores of 8 or above imply that the student in that particular response was "engaged". The variable `cm_binary_engagement` will be `TRUE` if the engagement score is above this cut-point and FALSE if not. For most common  metrics, the guidance is to set goals around the actual metric score, not the binary version, as the binary version reduces the nuance of the data. However, we know teams are interested in these binary classifications to `cm_binary_` variables are always created when you run `make_metric` as long as the metric has a defined cut-point. (The metric tntpcore does not have a defined cut-point.)
+
+## Checking for common errors
+
+`make_metric` automatically checks for the most common data issues. 
+
+### Misspelled Variables
+
+First, it requires that the data have the variable names spelled exactly as above. There is nothing special about these variable names, and the function had to choose some as the default. If your data has the variable names spelled differently, then you'll have to change them before using `make_metric`. Otherwise, you'll get an error:
+
+```{r make_metric_namerror, error = T}
+ss_data_initial %>%
+  rename(eng_interest_wrongspelling = eng_interest) %>%
+  make_metric(metric = "engagement")
+```
+
+Which variable names are needed for each metric can always be found by typing `? make_metric`; they are also detailed in the articles for each metric.
+
+### Items on the wrong scale
+
+Second, `make_metric` will check each item to ensure it's on the expected scale. For student survey items, it expects the scale of 0-3 outlined above. If any data value is outside of this scale, you'll get an error telling you which variables are out of scale and the proper scale on which they should be:
+
+```{r make_metric_scaleerror_1, error = T}
+ss_data_initial %>%
+  mutate(
+    eng_interest = eng_interest + 1,
+    eng_like = eng_like - 1
+  ) %>%
+  make_metric(metric = "engagement")
+```
+
+You will also get an error if your scales are not numeric:
+
+```{r make_metric_scaleerror_2, error = T}
+ss_data_initial %>%
+  mutate(
+    eng_interest = case_when(
+        eng_like == 0 ~ "Not True",
+        eng_like == 1 ~ "A Little True",
+        eng_like == 2 ~ "Mostly True",
+        eng_like == 3 ~ "Very True"
+    )
+  ) %>%
+  make_metric(metric = "engagement")
+```
+
+The scales needed for each metric are detailed in the metric articles.
+
+### (Optional) Censored scale use
+
+There are times where items may be on the wrong scale, but in a way that is undetectable. For example,
+what if the student survey data was provided to you with each item on a scale of 1-4, but because students never responded "Very True", the data only actually has values of 1-3. Values of 1-3 are all *in scale* for student surveys, so that the preceding error will not occur. To account for this, `make_metric` automatically checks that each possible value on the scale is used and gives you a warning if that is not the case by indicating the affected variables and which value(s) they did not use:
+
+```{r make_metric_scaleusewarning_1}
+ss_data_initial %>%
+  mutate(eng_interest = ifelse(eng_interest == 0, NA, eng_interest)) %>%
+  make_metric(metric = "engagement") %>%
+  head()
+```
+
+Because this is not technically an error, you can turn off this default warning by setting `scaleusewarning = F`:
+
+```{r make_metric_scaleusewarning_2}
+ss_data_initial %>%
+  mutate(eng_interest = ifelse(eng_interest == 0, NA, eng_interest)) %>%
+  make_metric(metric = "engagement", scaleusewarning = F) %>%
+  head()
+```
+
+## Goals Analysis
+
+In most cases, making the common metric is just an intermediate step to scoring the metric for goals purposes. `tntpmetric` has two functions that should make all the necessary goals calculations for you. In both cases, *you do not need* to create the metric ahead of time. Just provide the function your raw data, indicate the metric of interest and type of analysis needed.
+
+### Calculating the average common metric score
+
+If you want to calculate the average common metric score at a single point in time, you can use the function `metric_mean`. For example, to calculate the average Sense of Belonging score in the initial survey data, simply give it your data and indicate it's the "belonging" metric. (The `by_class` option will be discussed below)
+
+```{r metric_mean}
+metric_mean(ss_data_initial, metric = "belonging", by_class = T)
+```
+
+`metric_means` estimates this mean using a multilevel model framework, and takes advantage of the R package `emmeans` to print the output. The overall mean is displayed in the first element of the returned list under `emmean`. For a more robust result, you are also provided the appropriate Standard Error (`SE`) and the lower and upper bounds of the 95% Confidence Interval (`lower.CL` and `upper.cl`)
+
+### Using the binary version of the variable
+
+The function `metric_mean` also works on the binary version of the construct. Simply set the option `use_binary` to `TRUE`:
+
+```{r metric_mean_binary}
+metric_mean(ss_data_initial, metric = "engagement", use_binary = T, by_class = T)
+```
+
+Because the outcome is not a TRUE/FALSE binary, the mean will always be a proportion between 0 and 1. In the above example, the value 0.238 implies that 23.8% of responses in this data set were "engaged".
+
+### Calculating the average common metric score for different groups
+
+Many projects have equity-based goals that require looking at mean common metric scores for different types of classrooms. For example, the student survey data has a variable `class_frl_cat` indicating whether the response comes from a class with at least 50% of students receiving free or reduced price lunch or a class where fewer than 50% of students receive FRL. To look at the results for each group, simply include the column name as the `equity_group`:
+
+```{r metric_mean_equity_frl}
+metric_mean(ss_data_initial, metric = "belonging", equity_group = "class_frl_cat", by_class = T)
+```
+
+Now, the results show the mean for both types of classes, and include another entry to the returned list called "Difference(s) between groups" the calculates the contrast, or the difference between these group means, and gives a standard error and p-value in case it's of interest. Note that the contrast is always represented as the first group listed minus the second group listed. In this case, because the reported difference is negative, it means that classes with under 50% FRL students tended to have a higher sense of belonging score.
+
+Equity group comparisons work even when there are more than two group values, like in the variable `class_soc_cat`:
+
+```{r metric_mean_equity_soc}
+metric_mean(ss_data_initial, metric = "belonging", equity_group = "class_soc_cat", by_class = T)
+```
+
+Because it's rare for projects to set equity goals for factors that have many different groups, `metric_mean` warns you if your `equity_group` variable has more than 5 categories; usually that means something is wrong with your variable.
+
+### The by_class option
+
+Some metrics collect multiple data points from a single class. For example, student surveys will survey multiple students in the same class, and in many cases multiple times. Because different classes will almost surely have a different number of associated data points -- some classes might get 10 surveys, while another might get 50 -- we need an approach that doesn't over- or under-represent some classes because of differences in sample sizes. Fortunately, the multilevel models under-girding the the functions in `tntpmetrics` account for differences in sample sizes between classes automatically. But to make them work, you must have a variable in your data titled class_id representing each classroom's unique identifier. You must also set `by_class = T` as we did in the above examples.
+
+If you do not set `by_class = T` and/or you do not have a class_id variable, `metric_mean` will not account for differences in sample sizes by class. In cases where you have multiple rows of data associated with the same class, not accounting for class IDs is statistically inappropriate and the standard errors and confidence intervals will likely be too small. Because some projects will surely forget to collect a class ID, `metric_means` will still give you the results even if you set `by_class = F` (or do not specify this option, as FALSE is the default), but will warn you about this statistical issue if you are using a metric that is expecting a class ID, like student surveys or assignments:
+
+```{r metric_mean_byclass}
+metric_mean(ss_data_initial, metric = "belonging")
+```
+
+You will not get this warning if you set `by_class = F` and you are analyzing a metric that is less likely to have multiple responses per class, like expectations or observations.
+
+### Calculating average growth over time
+
+To examine how the average metric score has changed between two time points, use the function `metric_growth`. This function works the same as `metric_mean` but expects you to provide two data sets: one for the first time point (`data1`) and one for the later time point (`data2`). For example, to look at how engagement has changed over time, we can use:
+
+```{r metric_growth}
+metric_growth(
+  data1 = ss_data_initial, 
+  data2 = ss_data_final, 
+  metric = "engagement", 
+  by_class = T
+)
+```
+
+In this example, the mean engagement score initially was 4.93, but increased to 5.99 by the final data collection. This difference was a growth of 1.06 points.
+
+### Using the binary version of the variable
+
+The function `metric_growth` also works on the binary version of the construct. Simply set the option `use_binary` to `TRUE`:
+
+```{r metric_growth_binary}
+metric_growth(
+  data1 = ss_data_initial, 
+  data2 = ss_data_final, 
+  metric = "engagement",
+  use_binary = T,
+  by_class = T
+)
+```
+
+As before, remember that the values represent proportions between 0 and 1. In the example above, 23% of responses in the initial data were engaging and 33% were engaging in the final data. The difference (0.0922) represents about 9 percentage points.
+
+### Calculating differences in growth over time between equity groups
+
+You can also examine how growth compared between different groups by specifying he equity group:
+
+```{r metric_growth_equity}
+metric_growth(
+  data1 = ss_data_initial, 
+  data2 = ss_data_final, 
+  metric = "engagement",
+  equity_group = "class_frl_cat",
+  by_class = T
+)
+```
+
+In this example, classes with at least 50% of students receiving FRL had an initial engagement score of 2.93, and then grew to 4.02 at the final data collection. Classrooms with under 50% FRL students also grew, from 6.94 to 7.97. Adding this equity_group option will directly show how the difference between the two groups varied at each time point. In this case, classes with at least 50% FRL students had engagement scores that were 4.01 points lower than other classes initially, and 3.95 points lower at the final data collection. The difference of these differences (i.e., -3.95 - -4.01 = 0.0659) is shown in the list element "Change in differences between groups over time". In this case, this difference is small and not significantly different from 0 (the p-value is 0.48), implying that the gap between these types of classrooms did not change meaningfully over time.
+
+You must have the same group definitions in both data sets, or you'll get an error:
+
+```{r metric_growth_equity_error, error = T}
+# Renaming FRL class variable so it doesn't match initial data
+ss_data_final_error <- ss_data_final %>%
+  mutate(
+    class_frl_cat = ifelse(
+      class_frl_cat == "At least 50% FRL",
+      ">= 50% FRL",
+      class_frl_cat
+    )
+  )
+metric_growth(
+  data1 = ss_data_initial, 
+  data2 = ss_data_final_error, 
+  metric = "engagement",
+  equity_group = "class_frl_cat",
+  by_class = T
+)
+```

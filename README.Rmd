@@ -40,70 +40,8 @@ devtools::install_github("adamMaier/tntpmetrics")
 
 To learn more about how the package works, please read through the following articles:
 
-* Overview of creating metrics with `make_metric`
+* [Overview of creating metrics](metric_overview.html)
 * **Student surveys:** Engagement, Relevance, and Belonging
 * **Observation tools:** IPG and TNTP Core
 * **Teacher and leader surveys:** Expectations (both the current items and the older items)
 * **Assignments:** Grade-Appropriate Assignments
-
-## Quick example
-
-`tntpmetrics` contains a simple function called `make_metric` to attach a new column/variable to your data with the value of the scored common metric. The new column will always have the prefix `cm_` followed by the name of the metric. For example, the *engagement* metric is simply the sum of the four engagement survey items. To use `make_metric`, simply provide the data set you want to use, and the 
-metric you want calculated, making sure to put the latter in quotes. The result is your data but with new variable `cm_engagement`. The function also tells you how many rows of data did not have a construct created because at least one of the survey items was missing.
-
-```{r make_metric_example}
-make_metric(data = ss_data_initial, metric = "engagement") %>%
-  select(response_id, starts_with("eng_"), starts_with("cm_")) %>%
-  head() %>%
-  kable()
-```
-
-### Binary version of common metric
-
-Note that in the above, there were **two** new variables created: `cm_engagement` and `cm_binary_engagement`. For many common metrics, there is a cut-point on the metric scale above which, scores take on a special meaning. For engagement, for example, scores of 8 or above imply that the student in that particular response was "engaged". The variable `cm_binary_engagement` will be `TRUE` if the engagement score is above this cut-point and FALSE if not. For most common  metrics, the guidance is to set goals around the actual metric score, not the binary version, as the binary version reduces the nuance of the data. However, we know teams are interested in these binary classifications to `cm_binary_` variables are always created when you run `make_metric` as long as the metric has a defined cut-point. (The metric tntpcore does not have a defined cut-point.)
-
-## Checking for common errors
-
-`make_metric` automatically checks for the most common data issues. 
-
-### Misspelled Variables
-
-First, it requires that the data have the variable names spelled exactly as above. There is nothing special about these variable names, and the function had to choose some as the default. If your data has the variable names spelled differently, then you'll have to change them before using `make_metric`. Otherwise, you'll get an error:
-
-```{r make_metric_namerror, error = T}
-ss_data_initial %>%
-  rename(eng_interest_wrongspelling = eng_interest) %>%
-  make_metric(metric = "engagement")
-```
-
-Which variable names are needed for each metric can always be found by typing `? make_metric`; they are also detailed in metric vignettes.
-
-#### Items on the wrong scale
-
-Second, `make_metric` will check each item to ensure it's on the expected scale. For student survey items, it expects the scale of 0-3 outlined above. If any data value is outside of this scale, you'll get an error telling you which variables are out of scale and the proper scale on which they should be:
-
-```{r make_metric_scaleerror_1, error = T}
-ss_data_initial %>%
-  mutate(
-    eng_interest = eng_interest + 1,
-    eng_like = eng_like - 1
-  ) %>%
-  make_metric(metric = "engagement")
-```
-
-You will also get an error if your scales are not numeric:
-
-```{r make_metric_scaleerror_2, error = T}
-ss_data_initial %>%
-  mutate(
-    eng_interest = case_when(
-        eng_like == 0 ~ "Not True",
-        eng_like == 1 ~ "A Little True",
-        eng_like == 2 ~ "Mostly True",
-        eng_like == 3 ~ "Very True"
-    )
-  ) %>%
-  make_metric(metric = "engagement")
-```
-
-The scales needed for each metric are detailed in vignettes.
