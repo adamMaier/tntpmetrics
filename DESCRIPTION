@@ -8,7 +8,7 @@ Description: Functions to apply business rules for many TNTP common metrics, mos
     used for examining projects' goals. Allows analysts to create metrics, calculate 
     metric means and changes over time, and calculate equity-based differences
     between groups. Also provides functions to sample schools, teachers, etc. when
-    determining from whom or where to collect data.
+    determining from whom or where to collect data..
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
