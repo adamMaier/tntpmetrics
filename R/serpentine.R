@@ -40,7 +40,7 @@
 #' mixed_serpentine(mtcars, cyl, vs, mpg)
 #'
 #' # cyl is ascending, vs is descending, and mpg is serpentine sorted
-#' mixed_serpentine(mtcars, cyl, desc(vs), mpg)
+#' mixed_serpentine(mtcars, cyl, dplyr::desc(vs), mpg)
 #'
 #' @import rlang
 #' @name serpentine

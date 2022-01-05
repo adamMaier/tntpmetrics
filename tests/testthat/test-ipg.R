@@ -78,7 +78,7 @@ test_that("IPG scores match manual calculations", {
 # Test that function returns all domains on original scale
 test_that("IPG scores match manual calculations", {
   expect_equal(
-    select(make_metric(ipg_data, "ipg"), -cm_ipg, -ca1_overall),
+    select(make_metric(ipg_data, "ipg"), -cm_ipg, -ca1_overall, -cm_binary_ipg),
     ipg_data
   )
 })

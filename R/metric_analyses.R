@@ -78,26 +78,26 @@
 #'
 #' @examples
 #' # Compute the mean engagement score for an entire project at a single time point. Setting
-#' # by_class = T because multiple surveys come from the same class.
-#' metric_mean(practice_data, metric = "engagement", by_class = T)
+#' # by_class = TRUE because multiple surveys come from the same class.
+#' metric_mean(ss_data_final, metric = "engagement", by_class = TRUE)
 #'
 #' # Do the same, but now compare results by a class's FRL population
-#' metric_mean(practice_data, metric = "engagement", equity_group = "frl_cat", by_class = T)
+#' metric_mean(ss_data_final, metric = "engagement", equity_group = "class_frl_cat", by_class = TRUE)
 #'
 #' # Look at change in engagement over time, then look at how differences in engagement between a
 #' # class's FRL population change over time
 #' metric_growth(
-#'   practice_data_initial,
-#'   practice_data_final,
+#'   ss_data_initial,
+#'   ss_data_final,
 #'   metric = "engagement",
-#'   by_class = T
+#'   by_class = TRUE
 #'  )
 #'  metric_growth(
-#'   practice_data_initial,
-#'   practice_data_final,
+#'   ss_data_initial,
+#'   ss_data_final,
 #'   metric = "engagement",
 #'   equity_group = "class_frl_cat",
-#'   by_class = T
+#'   by_class = TRUE
 #'  )
 #'
 #' @name metric_analyses
@@ -117,7 +117,7 @@ metric_mean <- function(data, metric, use_binary = F, equity_group = NULL, by_cl
     warning(
       paste(
         "To properly analyze the", metric, "metric, you should have a variable called class_id in",
-        "your data, and set by_class = T.",
+        "your data, and set by_class = TRUE.",
         "If you did not collect a class ID your results might not be appropriate.",
         "Contact Cassie Coddington to discuss."
       ),
