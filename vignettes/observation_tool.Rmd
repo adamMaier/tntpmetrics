@@ -32,6 +32,7 @@ library(tntpmetrics)
       + dl ("*Demonstration of Learning*")
       + cl ("*Culture of Learning*")
     * Scale: 1 (Ineffective), 2 (Minimally Effective), 3 (Developing), 4 (Proficient), 5 (Skillful)
+    * *Note: TNTP Core does not have a binary threshold.*
 * **IPG**
     * Metric name to use in package: `metric = ipg`
     * Items: All observations need
@@ -56,6 +57,10 @@ library(tntpmetrics)
 
 ## TNTP Core
 
+Calculating TNTP Core scores works like all other metrics. make sure you have the required columns and then use `metric = 'tntpcore'` in `make_metric`.
+
+We'll simulate data as an example.
+
 ```{r tntpcore_data}
 tntp_core_scale <- 1:5
 
@@ -69,9 +74,11 @@ tntp_core_data <- data.frame(
 )
 ```
 
-```{r tntpcore_example}
+Now to calculate TNTP Core Observation scores. Note that TNTP Core does not have a binary threshold, so only one additional column is returned.
 
-make_metric(data = tntp_core_data, metric = "tntpcore") %>%
+```{r tntpcore_example}
+tntp_core_data %>%
+  make_metric(metric = "tntpcore") %>%
   head() %>%
   kable()
 ```
