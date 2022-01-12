@@ -150,7 +150,7 @@ make_construct <- function(data, metric, scaleusewarning = T) {
   if (metric == "tntpcore") {
     data_name_check(data, needed_items = ni)
     data_scale_check(data, needed_items = ni, item_scale = sc)
-    if (scaleusewarning) data_scaleuse_check(data = dat, needed_items = ni, item_scale = sc)
+    if (scaleusewarning) data_scaleuse_check(data = data, needed_items = ni, item_scale = sc)
     data <- construct_maker_mean(data, needed_items = ni, item_scale = sc, reversed_items = ri)
   }
 
