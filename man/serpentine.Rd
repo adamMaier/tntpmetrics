@@ -55,6 +55,6 @@ serpentine(data = mtcars, cyl, vs, mpg, random_num = 23)
 mixed_serpentine(mtcars, cyl, vs, mpg)
 
 # cyl is ascending, vs is descending, and mpg is serpentine sorted
-mixed_serpentine(mtcars, cyl, desc(vs), mpg)
+mixed_serpentine(mtcars, cyl, dplyr::desc(vs), mpg)
 
 }

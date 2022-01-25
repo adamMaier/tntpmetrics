@@ -40,7 +40,7 @@
 #' mixed_serpentine(mtcars, cyl, vs, mpg)
 #'
 #' # cyl is ascending, vs is descending, and mpg is serpentine sorted
-#' mixed_serpentine(mtcars, cyl, desc(vs), mpg)
+#' mixed_serpentine(mtcars, cyl, dplyr::desc(vs), mpg)
 #'
 #' @import rlang
 #' @name serpentine
@@ -63,7 +63,7 @@ single_serp <- function(data = NULL, var_desc = NULL, var_serp = NULL) {
   split_data[c(T, F)] <- purrr::map(split_data[c(T, F)], ~ dplyr::arrange(.x, !!var_serp))
 
   # Apply descending sort to even list elements
-  split_data[c(F, T)] <- purrr::map(split_data[c(F, T)], ~ dplyr::arrange(.x, desc(!!var_serp)))
+  split_data[c(F, T)] <- purrr::map(split_data[c(F, T)], ~ dplyr::arrange(.x, dplyr::desc(!!var_serp)))
 
   # Recombine in data by appending list elements
   dplyr::bind_rows(split_data)

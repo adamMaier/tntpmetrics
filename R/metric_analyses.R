@@ -79,25 +79,25 @@
 #' @examples
 #' # Compute the mean engagement score for an entire project at a single time point. Setting
 #' # by_class = T because multiple surveys come from the same class.
-#' metric_mean(practice_data, metric = "engagement", by_class = TRUE)
+#' metric_mean(ss_data_final, metric = "engagement", by_class = TRUE)
 #'
 #' # Do the same, but now compare results by a class's FRL population
-#' metric_mean(practice_data, metric = "engagement", equity_group = "frl_cat", by_class = TRUE)
+#' metric_mean(ss_data_final, metric = "engagement", equity_group = "class_frl_cat", by_class = TRUE)
 #'
 #' # Look at change in engagement over time, then look at how differences in engagement between a
 #' # class's FRL population change over time
 #' metric_growth(
-#'   practice_data_initial,
-#'   practice_data_final,
+#'   ss_data_initial,
+#'   ss_data_final,
 #'   metric = "engagement",
-#'   by_class = T
+#'   by_class = TRUE
 #'  )
 #'  metric_growth(
-#'   practice_data_initial,
-#'   practice_data_final,
+#'   ss_data_initial,
+#'   ss_data_final,
 #'   metric = "engagement",
 #'   equity_group = "class_frl_cat",
-#'   by_class = T
+#'   by_class = TRUE
 #'  )
 #'
 #' @name metric_analyses
