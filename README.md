@@ -44,7 +44,7 @@ following articles:
 -   [**Overview of creating metrics**](metric_overview.html)
 -   [**Student surveys:**](student_surveys.html) Engagement, Relevance,
     and Belonging
--   **Observation tools:** IPG and TNTP Core
--   **Teacher and leader surveys:** Expectations (both the current items
-    and the older items)
+-   [**Observation tools:**](observation_tool.html) IPG and TNTP Core
+-   [**Teacher and leader surveys:**](teacher_expectations.html)
+    Expectations (both the current items and the older items)
 -   **Assignments:** Grade-Appropriate Assignments

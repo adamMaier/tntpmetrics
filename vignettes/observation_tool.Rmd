@@ -95,7 +95,7 @@ The IPG has the most complicated scoring approach of any of the common metrics. 
 
 `tntpmetrics` expects your IPG data to be long and tidy: each row is a separate observation, and each column should represent just one thing. That is, you should only have one column titled `ca2_overall` (representing the overall score to Core Action 2); you should not have a separate variable for each subject (i.e., you should not have math2_overall, rlc2_overall, science2_overall, etc.), as this would not be "tidy" because that column now contains information on two things: subjects and core action 2 scores. Instead, you must have a separate column/variable called `form` in your data indicating the subject on which the IPG was applied. Depending on the project, this might require you to compile all of your IPG data from separate forms in WordPress/Formidable before using the `tntpmetrics` package.
 
-### Additional needed variables
+### Additional variables
 
 When working with the IPG, all observations will need a variable called `form` which must be "Literacy", "Math", "Science", or "Social Studies". All observations will also need a variable called `grade_level`, which is numeric and can range from -1 to 12, where -1 is Pre-K and 0 is Kindergarten.
 
@@ -105,7 +105,7 @@ Science observations must have additional Core Action 1 domains `ca1_d`, `ca1_e`
 
 ### Calculating observation scores
 
-If you have all of the needed variables, you can create the overall observation score just as do for other metrics.
+If you have all of the needed variables, you can create the overall observation score just as you do for other metrics.
 
 ```{r ipg_construct}
 data(ipg_data)

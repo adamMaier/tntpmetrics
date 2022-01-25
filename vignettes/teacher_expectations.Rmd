@@ -1,0 +1,121 @@
+---
+title: "High Expectations"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{High Expectations}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(dplyr)
+library(knitr)
+library(tntpmetrics)
+```
+
+TNTP maintains two versions of leader and teacher high expectations questions. The current version contains four questions, all of which are positive coded. The old version, meanwhile, contains six questions, only two of which are positive coded. Below are the required column names for each version.  
+
+**Teacher or Leader Expectations - CURRENT Version (4 questions)**
+
+* Metric name to use in package: `metric = 'expectations'`
+* Items:
+  + exp_fairtomaster ("*It’s fair to expect students in this class to master these standards by the end of the year.*")
+  + exp_oneyearenough ("*One year is enough time for students in this class to master these standards.*")
+  + exp_allstudents ("*All students in my class can master the grade-level standards by the end of the year.*")
+  + exp_appropriate ("*The standards are appropriate for the students in this class.*")
+* Scale: 0 (Strongly Disagree), 1 (Disagree), 2 (Somewhat Disagree), 3 (Somewhat Agree), 4 (Agree), and 5 (Strongly Agree).
+    
+**Teacher or Leader Expectations - OLD Version (6 questions)**
+
+* Metric name to use in package: `metric = 'expectation_old'`
+* Items:
+  + exp_allstudents ("*All students in my class can master the grade-level standards by the end of the year.*")
+  + exp_toochallenging ("*The standards are too challenging for students in my class.*")
+  + exp_oneyear ("*One year is enough time for students in my class to master the standards.*")
+  + exp_different ("*Students in my class need something different than what is outlined in the standards.*")
+  + exp_overburden ("*Students in my class are overburdened by the demands of the standards.*")
+  + exp_began ("*Because of where students began the year, I spend nearly all of my time on standards from earlier grades.*")
+      
+This vignette will focus on the current version. But, the process works the same for the old version.
+
+Let's create a fake dataset to work with.
+
+```{r fakedata}
+n <- 300
+
+teacher_expectations <- data.frame(
+  id = 1:n,
+  exp_fairtomaster = sample(0:5, size = n, replace = TRUE, prob= c(.10, .15, .20, .20, .20, .15)),
+  exp_oneyearenough = sample(0:5, size = n, replace = TRUE, prob= rev(c(.10, .15, .20, .20, .20, .15))),
+  exp_allstudents = sample(0:5, size = n, replace = TRUE),
+  exp_appropriate = sample(0:5, size = n, replace = TRUE, prob= c(.05, .10, .25, .30, .20, .10)),
+  # create teacher expectation percentages by group
+  teacher_group = sample(c('A', 'B', 'C'),size = n, replace= TRUE)
+)
+```
+
+## Expectations Per Teacher
+
+We'll first calculate whether each teacher has high expectations of students.
+
+```{r expectationsPerTeacher}
+teacher_expectations %>%
+  make_metric(metric = "expectations") %>%
+  head() %>%
+  kable()
+```
+
+The column `cm_expectations` is the teacher's expectations score. It's the sum of all the expectations columns. `cm_binary_expectations` is a boolean representing `TRUE` if the teacher has high expectations and `FALSE` otherwise. Teachers have high expectations if their expectation score exceeds the cutoff. This value is 11 for the current expectations version: teachers with scores under 11 do not have high expectations, while those with scores over 11 do have high expectations.
+
+## Percentage of Teachers with High Expectations
+
+We can use `metric_mean` to calculate the percentage of teachers with high expectations, with standard errors included. Note that `use_binary` is set to `TRUE` so that we get the percentage of teacher with high expectations. If we simply wanted the average expectations score we would set this parameter to `FALSE`.
+
+```{r expectationsPercHigh}
+expectations_mean <- metric_mean(teacher_expectations, metric = "expectations", use_binary = T)
+
+expectations_mean
+```
+
+The code below saves the mean value as an R object.
+
+```{r}
+expectations_mean_value <- summary(expectations_mean[['Overall mean']])$emmean
+
+round(expectations_mean_value, 2)
+```
+
+## Percentage of Teachers with High Expectations by Group
+
+`metric_mean` also can be used to calculate percentages by group, along with standard errors and group comparisons.
+
+```{r expectationsPercHighGroup}
+group_expectations_mean <- metric_mean(teacher_expectations, metric = "expectations", equity_group = "teacher_group", by_class = F, use_binary = T)
+
+group_expectations_mean
+```
+
+Now, let's tidy up these results by placing them in a data frame.
+
+```{r}
+summary(group_expectations_mean[['Group means']]) %>%
+  as_tibble() %>%
+  kable()
+```
+
+And let's do the same for the comparisons.
+
+```{r}
+summary(group_expectations_mean[['Difference(s) between groups']]) %>%
+  as_tibble() %>%
+  kable()
+```
