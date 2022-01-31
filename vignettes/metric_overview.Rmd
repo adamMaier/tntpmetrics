@@ -1,6 +1,5 @@
 ---
 title: "Overview of Creating Metrics"
-author: "Shane Orr"
 output: rmarkdown::html_vignette
 description: >
   This vignette provides an overview of the make_metric function.

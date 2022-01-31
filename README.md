@@ -20,13 +20,13 @@ ideal.
 The `tntpmetrics` package includes three handy functions that start with
 raw, project-collected data and calculate individual common metric
 scores, summarize average common metrics scores for an entire project,
-compare common metric scores between (typically student sub-) groups,
-and analyze changes in metric scores over time. Most of the work of
-these functions is checking for potential errors or inconsistencies in
-the data – such as data not being on the proper scale, or missing but
-needed variables. These functions attempt to anticipate all of the
-potential issues that could occur between collecting raw data and
-calculating simple means from it.
+compare common metric scores between (typically student sub-groups), and
+analyze changes in metric scores over time. Most of the work of these
+functions is checking for potential errors or inconsistencies in the
+data – such as data not being on the proper scale, or missing but needed
+variables. These functions attempt to anticipate all of the potential
+issues that could occur between collecting raw data and calculating
+simple means from it.
 
 ### Installation
 

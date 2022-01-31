@@ -1,6 +1,5 @@
 ---
 title: "Sampling for Common Metrics"
-author: "Adam Maier"
 description: >
   This vignette shows how to use tntpmetrics to sample schools, teachers, classrooms, etc. in a way
   that is representative of the larger population and makes sure that the selected units differ as
