@@ -2,8 +2,10 @@ Package: tntpmetrics
 Type: Package
 Title: TNTP Common Metric Analysis and Preparation
 Version: 0.1.0
-Author: Adam Maier
-Maintainer: Adam Maier <adam.maier@tntp.org>
+Authors@R: c(
+    person(given = "Adam", family = "Maier", email = "adam.maier@tntp.org", role="aut"),
+    person(given = "Shane", family = "Orr", email = 'shane.orr@tntp.org', role = c("aut", "cre"))
+    )
 Description: Functions to apply business rules for many TNTP common metrics, mostly
     used for examining projects' goals. Allows analysts to create metrics, calculate 
     metric means and changes over time, and calculate equity-based differences
