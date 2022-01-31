@@ -1,0 +1,14 @@
+articles:
+- title: Articles
+  navbar: ~
+  contents:
+  - metric_overview
+  - teacher_expectations
+  - assignments
+  - observation_tool
+  - student_surveys
+  - sample_implicit
+
+template:
+  bootstrap: 5
+  bootswatch: cerulean
