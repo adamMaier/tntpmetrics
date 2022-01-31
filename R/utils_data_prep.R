@@ -51,9 +51,9 @@ data_name_check_ipg <- function(data) {
 
   # Ensuring form subject and grade_level meet value requirements
   form_check <- all(
-    na.omit(unique(data$form)) %in% c("Math", "Literacy", "Science", "Social Studies")
+    stats::na.omit(unique(data$form)) %in% c("Math", "Literacy", "Science", "Social Studies")
   )
-  gl_check <- all(na.omit(unique(data$grade_level)) %in% -1:12)
+  gl_check <- all(stats::na.omit(unique(data$grade_level)) %in% -1:12)
   if (!form_check) {
     stop(
       paste(
@@ -124,7 +124,7 @@ data_name_check_ipg <- function(data) {
 
 # Function to ensure items are on proper scale. Lists items that are not.
 data_scale_check <- function(data, needed_items, item_scale) {
-  scale_check <- purrr::map_lgl(data[, needed_items], ~ all(na.omit(.) %in% item_scale))
+  scale_check <- purrr::map_lgl(data[, needed_items], ~ all(stats::na.omit(.) %in% item_scale))
   scale_check <- needed_items[!scale_check]
   if (!rlang::is_empty(scale_check)) {
     stop(
@@ -161,7 +161,7 @@ data_scale_check_ipg <- function(data) {
 
   # Core Action 1 indicators should all be 0 (no) and 1 (yes)
   ca_1 <- c("ca1_a", "ca1_b", "ca1_c")
-  ca1_check <- purrr::map_lgl(data[, ca_1], ~ all(na.omit(.) %in% 0:1))
+  ca1_check <- purrr::map_lgl(data[, ca_1], ~ all(stats::na.omit(.) %in% 0:1))
   ca1_check <- ca_1[!ca1_check]
   if (!rlang::is_empty(ca1_check)) {
     stop(
@@ -177,7 +177,7 @@ data_scale_check_ipg <- function(data) {
   # Repeating with science Core Action 1 indicators and science text filter, if they exist
   if (NROW(dplyr::filter(data, form == "Science")) > 0) {
     ca_1_science <- c("ca1_d", "ca1_e", "ca1_f")
-    ca1_science_check <- purrr::map_lgl(data[, ca_1_science], ~ all(na.omit(.) %in% 0:1))
+    ca1_science_check <- purrr::map_lgl(data[, ca_1_science], ~ all(stats::na.omit(.) %in% 0:1))
     ca1_science_check <- ca_1_science[!ca1_science_check]
     if (!rlang::is_empty(ca1_science_check)) {
       stop(
@@ -191,7 +191,7 @@ data_scale_check_ipg <- function(data) {
     }
 
     science_filter_options <- c("Text", "Inquiry and Scientific Practice", "Both", "Neither")
-    science_filter_check <- all(na.omit(data$science_filter) %in% science_filter_options)
+    science_filter_check <- all(stats::na.omit(data$science_filter) %in% science_filter_options)
     if (!science_filter_check) {
       stop(
         paste(
@@ -206,7 +206,7 @@ data_scale_check_ipg <- function(data) {
 
   # All other variables should be on a 1-4 scale
   other_vars <- c("ca2_overall", "ca3_overall", "col")
-  other_vars_check <- purrr::map_lgl(data[, other_vars], ~ all(na.omit(.) %in% 1:4))
+  other_vars_check <- purrr::map_lgl(data[, other_vars], ~ all(stats::na.omit(.) %in% 1:4))
   other_vars_check <- other_vars[!other_vars_check]
   if (!rlang::is_empty(other_vars_check)) {
     stop(
@@ -222,7 +222,7 @@ data_scale_check_ipg <- function(data) {
 
   # RFS should be on a 1-4 scale (if it exists)
   if ("rfs_overall" %in% names(data)) {
-    rfs_check <- all(na.omit(data[, "rfs_overall"]) %in% 1:4)
+    rfs_check <- all(stats::na.omit(data[, "rfs_overall"]) %in% 1:4)
     if (!rfs_check) {
       stop(
         paste(
@@ -272,7 +272,7 @@ construct_maker_sum <- function(data, needed_items, item_scale, reversed_items =
   # Create construct
   positive_items <- needed_items[!needed_items %in% reversed_items]
   pos_sums <- rowSums(data[, positive_items, drop = FALSE])
-  rev_sums <- 2 * median(item_scale) - data[, reversed_items, drop = FALSE]
+  rev_sums <- 2 * stats::median(item_scale) - data[, reversed_items, drop = FALSE]
   rev_sums <- rowSums(rev_sums)
 
   if (length(reversed_items) == 0) {
@@ -303,7 +303,7 @@ construct_maker_mean <- function(data, needed_items, item_scale, reversed_items 
   positive_items <- needed_items[!needed_items %in% reversed_items]
   pos_means <- rowMeans(data[, positive_items, drop = FALSE])
   rev_means <- rowMeans(data[, reversed_items, drop = FALSE])
-  rev_means <- 2 * median(item_scale) - rev_means
+  rev_means <- 2 * stats::median(item_scale) - rev_means
   if (length(reversed_items) == 0) {
     construct <- pos_means
   } else {
@@ -453,7 +453,7 @@ construct_maker_ipg <- function(data) {
 equity_check <- function(data, equity_group) {
   names(data)[names(data) == equity_group] <- "equity_group"
   data <- dplyr::mutate(data, equity_group = as.character(equity_group))
-  if (length(unique(na.omit(data$equity_group))) >= 5) {
+  if (length(unique(stats::na.omit(data$equity_group))) >= 5) {
     warning(
       paste(equity_group, "has more than 5 different groups. Are you sure that's what you want?"),
       call. = FALSE

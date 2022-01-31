@@ -1,0 +1,83 @@
+---
+title: "Student Surveys"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Student Surveys}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(dplyr)
+library(knitr)
+library(tntpmetrics)
+```
+
+`tntpmetrics` calculates engagement, relevance, and belonging metrics from student surveys. The list below shows the required column names to calculate each metric.
+
+* **Engagement**
+    * Metric name to use in package: `metric = engagement`
+    * Items: ("*We spend time in class on things that...*")
+      + eng_interest ("*What we were learning was interesting.*")
+      + eng_like ("*I liked what we did in class.*")
+      + eng_losttrack ("*I was so into what we were learning I lost track of time.*")
+      + eng_moreabout ("*I thought more about what we were learning than anything else.*")
+    * Scale: 0 (Not True), 1 (A Little True), 2 (Mostly True), or 3 (Very True).
+* **Relevance**
+    * Metric name to use in package: `metric = relevance`
+    * Items: ("*We spend time in class on things that...*")
+      + rel_asmuch ("*Will help me learn just as much as kids in other schools.*")
+      + rel_future ("*Are important to my future goals.*")
+      + rel_outside ("*I can use outside of school.*")
+      + rel_rightnow ("*Are important to my life right now.*")
+    * Scale: 0 (Not True), 1 (A Little True), 2 (Mostly True), or 3 (Very True).
+* **Belonging**
+    * Metric name to use in package: `metric = belonging`
+    * Items:
+      + bel_ideas ("*In this class, my ideas really count.*")
+      + tch_interestedideas ("*In this class, my teacher is interested in my ideas.*")
+      + bel_fitin ("*In this class, I feel like I fit in.*")
+      + tch_problem ("*I could talk to my teacher for this class if I had a problem.*")
+    * Scale: 0 (Not True), 1 (A Little True), 2 (Mostly True), or 3 (Very True).
+
+## Engagement
+
+```{r}
+# data set in tntpmetrics package
+data(ss_data_initial)
+
+ss_data_initial %>%
+  select(response_id, starts_with('eng')) %>%
+  make_metric(metric = "engagement") %>%
+  head() %>%
+  kable()
+```
+
+## Relevance
+
+```{r}
+ss_data_initial %>%
+  select(response_id, starts_with('rel')) %>%
+  make_metric(metric = "relevance") %>%
+  head() %>%
+  kable()
+```
+
+## Belonging
+
+```{r}
+ss_data_initial %>%
+  select(response_id, starts_with('bel'), starts_with('tch')) %>%
+  make_metric(metric = "belonging") %>%
+  head() %>%
+  kable()
+```

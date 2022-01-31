@@ -187,7 +187,6 @@ Below are the required column names and associated scales for each metric. See [
       + exp_different ("*Students in my class need something different than what is outlined in the standards.*")
       + exp_overburden ("*Students in my class are overburdened by the demands of the standards.*")
       + exp_began ("*Because of where students began the year, I spend nearly all of my time on standards from earlier grades.*")
-    * Scale: 0 (Strongly Disagree), 1 (Disagree), 2 (Somewhat Disagree), 3 (Somewhat Agree), 4 (Agree), and 5 (Strongly Agree).
 * **TNTP Core**
     * Metric name to use in package: `metric = tntpcore`
     * Items:

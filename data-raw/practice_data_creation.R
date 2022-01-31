@@ -151,7 +151,7 @@ cms_data %<>%
 cms_data %<>%
   mutate_at(
     vars(frl_percent, soc_percent, spg_score, total_students_2018),
-    ~ ifelse(is.na(.), median(., na.rm = T), .)
+    ~ ifelse(is.na(.), stats::median(., na.rm = T), .)
   ) %>%
   mutate(
     spg_grade = ifelse(is.na(spg_grade), "I", spg_grade)

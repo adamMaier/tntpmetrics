@@ -1,0 +1,205 @@
+---
+title: "Observations"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Observations}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(dplyr)
+library(knitr)
+library(tntpmetrics)
+```
+
+`tntpmetrics` calculate observation scores for both the TNTP Core and IPG. The required column names for each metric are below.
+
+* **TNTP Core**
+    * Metric name to use in package: `metric = tntpcore`
+    * Items:
+      + ec ("*Essential Content*")
+      + ao ("*Academic Ownership*")
+      + dl ("*Demonstration of Learning*")
+      + cl ("*Culture of Learning*")
+    * Scale: 1 (Ineffective), 2 (Minimally Effective), 3 (Developing), 4 (Proficient), 5 (Skillful)
+    * *Note: TNTP Core does not have a binary threshold.*
+* **IPG**
+    * Metric name to use in package: `metric = ipg`
+    * Items: All observations need
+      + ca1_a ("*Core Action 1A*")
+      + ca1_b ("*Core Action 1B*")
+      + ca1_c ("*Core Action 1C*")
+      + ca2_overall ("*Core Action 2 Overall*")
+      + ca3_overall ("*Core Action 3 Overall*")
+      + col ("*Culture of Learning*")
+    * Items for K-5 Literacy observations also required are
+      + rfs_overall ("*Reading Foundation Skills Overall*")
+    * Items for science observations also required are
+      + ca1_d ("*Core Action 1D*")
+      + ca1_e ("*Core Action 1E*")
+      + ca1_f ("*Core Action 1F*")
+      + science_filter (*"Text", "Inquiry and Scientific Practice", "Both", or "Neither".*)
+    * Other Needed Items are:
+      + grade_level ("*Numeric grade-level*")
+      + form ("Math", "Literacy", "Science", or "Social Studies"). 
+    * Scale: ca1_a, ca1_b, ca1_c, ca1_d, ca1_e, and ca1_f are 0 (No) and 1 (Yes). All other items are 1 (Not Yet), 2 (Somewhat), 3 (Mostly), and 4 (Yes)
+    * Note: RFS Overall (`rfs_overall`) is only required if observation data contains K-5 Literacy observations. Core Action 1 D - F (`ca1_`) are only required if data contains science observations.
+
+## TNTP Core
+
+Calculating TNTP Core scores works like all other metrics. make sure you have the required columns and then use `metric = 'tntpcore'` in `make_metric`.
+
+We'll simulate data as an example.
+
+```{r tntpcore_data}
+tntp_core_scale <- 1:5
+
+n <- 100
+
+tntp_core_data <- data.frame(
+  ec = sample(tntp_core_scale, n, replace = T),
+  ao = sample(tntp_core_scale, n, replace = T),
+  dl = sample(tntp_core_scale, n, replace = T),
+  cl = sample(tntp_core_scale, n, replace = T)
+)
+```
+
+Now to calculate TNTP Core Observation scores. Note that TNTP Core does not have a binary threshold, so only one additional column is returned.
+
+```{r tntpcore_example}
+tntp_core_data %>%
+  make_metric(metric = "tntpcore") %>%
+  head() %>%
+  kable()
+```
+
+## IPG
+
+The IPG has the most complicated scoring approach of any of the common metrics. That is because it was originally intended as a diagnostic and development (rather than evaluation) tool, has different components based on the subject matter, has indicators on different scales, and can often have layers of skip logic in the online form used to capture the data. Nevertheless, `make_metric` works just as easily on the IPG as it does on other metrics, but users should be aware of the following:
+
+* The function expects the Core Action 1 indicators to be on a 0-1 scale, but the other Core Action scores (and RFS Overall and Culture of Learning) to be on a 1-4 scale. This is to make the function work more easily on data coming out of Academic Diagnostic forms, which tend to use these scales. `make_metric` will automatically place everything on the proper scale.
+* `make_metric` will not account for observations that should be excluded. For example, some Literacy observations were unrateable because they focused on narrative writing. `make_metric` does not expect any of these type of skip-logic filters that often accompany the online Academic Diagnostic form, so it's up to the analyst to first exclude observations that should not be included based on the business rules. Similarly, because of the online skip logic, there are occasions where Core Actions 2 and 3 should be set to the lowest possible value because the observer was skipped past the questions. If these values are left as NA, `make_metric` will return NAs for the overall common metric score. The analyst must apply the appropriate business rules *before* using `make_metric`.
+*  Analyzing IPG data requires additional variables beyond those used directly in scoring the construct. This is because the IPG calculates the construct differently based on the subject and grade-level of the observation. Though some of these calculations are slightly more involved, you can use the functions in `tntpmetrics` in the same way as the examples above. You just need to make sure that each observation has all the necessary variables.
+
+### IPG data should be long and tidy
+
+`tntpmetrics` expects your IPG data to be long and tidy: each row is a separate observation, and each column should represent just one thing. That is, you should only have one column titled `ca2_overall` (representing the overall score to Core Action 2); you should not have a separate variable for each subject (i.e., you should not have math2_overall, rlc2_overall, science2_overall, etc.), as this would not be "tidy" because that column now contains information on two things: subjects and core action 2 scores. Instead, you must have a separate column/variable called `form` in your data indicating the subject on which the IPG was applied. Depending on the project, this might require you to compile all of your IPG data from separate forms in WordPress/Formidable before using the `tntpmetrics` package.
+
+### Additional variables
+
+When working with the IPG, all observations will need a variable called `form` which must be "Literacy", "Math", "Science", or "Social Studies". All observations will also need a variable called `grade_level`, which is numeric and can range from -1 to 12, where -1 is Pre-K and 0 is Kindergarten.
+
+All literacy observations that take place in a Pre-K to 5th grade classroom must also have a variable called `rfs_overall` which represents the overall score on the reading foundation skills.
+
+Science observations must have additional Core Action 1 domains `ca1_d`, `ca1_e`, and `ca1_f`. How these additional domains get scored depends on the value to a gatekeeper or filter question from the form: "Did the lesson focus on a text or inquiry and scientific practice (experimentation, application, modeling, analysis, etc.)? Note that “texts” in this context also means other scientifically appropriate mediums of communication, like grade-appropriate videos, data sets, models, etc.". Thus, all science observations must also have a variable called `science_filter` which must have values of "Text", "Inquiry and Scientific Practice", "Both", or "Neither". 
+
+### Calculating observation scores
+
+If you have all of the needed variables, you can create the overall observation score just as you do for other metrics.
+
+```{r ipg_construct}
+data(ipg_data)
+
+ipg_data %>%
+  make_metric(metric = "ipg") %>%
+  select(ends_with("overall"), col, cm_ipg) %>%
+  head() %>%
+  kable()
+```
+
+In the above, notice that Core Actions 2 and 3, and Culture of Learning were rescaled in order to calculate the IPG construct (`cm_ipg`) but are returned to you in their original scale of 1-4. Additionally, the oveall Core Action 1 score is created as a new variable (`ca1_overall`) as only the subdomains are included in the original data.
+
+But note what happens if you do not have the variable called `form`:
+
+```{r ipg_construct_error1, error = T}
+ipg_data %>%
+  select(-form) %>%
+  make_metric(metric = "ipg")
+```
+
+... Or if you don't have a variable called `grade_level`:
+
+```{r ipg_construct_error2, error = T}
+ipg_data %>%
+  select(-grade_level) %>%
+  make_metric(metric = "ipg")
+```
+
+... Or if either of these takes unexpected values:
+
+```{r ipg_construct_error3, error = T}
+ipg_data %>%
+  mutate(form = ifelse(row_number() == 1, "Blarg", form)) %>% 
+  make_metric(metric = "ipg")
+```
+
+```{r ipg_construct_error4, error = T}
+ipg_data %>%
+  mutate(grade_level = ifelse(row_number() == 1, 15, grade_level)) %>% 
+  make_metric(metric = "ipg")
+```
+
+In fact, NAs are not allowed for `grade-level` or `form` because they determine how the construct is scored. You will get an error if any of your data rows have NAs in these columns:
+
+```{r ipg_construct_error5, error = T}
+ipg_data %>%
+  mutate(form = ifelse(row_number() == 1, NA, form)) %>% 
+  make_metric(metric = "ipg")
+```
+
+### Missing ratings
+
+`tntpmetric` will attempt to create an overall IPG score for every observation in your data. However, it can only do so if all the needed domain ratings are included. In cases where an observation is missing a required domain rating -- for example, an observation is missing an overall score on Core Action 2 or Culture of Learning -- it will return an NA for the overall IPG construct value and tell you how many observations were missing key information. 
+
+In the example below, we can see this warning if we purposefully drop some key domain ratings in the data before applying the `make_metric` function:
+
+```{r ipg_missing_warning1, error = T}
+ipg_data %>%
+  mutate(
+    col = ifelse(row_number() == 1, NA, col),
+    ca3_overall = ifelse(row_number() == 2, NA, ca3_overall),
+    rfs_overall = ifelse(row_number() == 14, NA, rfs_overall),
+    ca2_overall = ifelse(row_number() == 14, NA, ca2_overall)
+  ) %>% 
+  make_metric(metric = "ipg") %>%
+  select(observation_number, ends_with("overall"), col, cm_ipg) %>%
+  slice(1:5, 14)
+```
+
+Note that these messages are warnings, and the code will still run. But the affected observatinos now have NAs for their value for the overall construct (`cm_ippg`).
+
+### Science observation scores
+
+The (at the time of this writing) new science IPG form has more Core Action 1 subdomain ratings to account for the variety of lessons science observers might see. `tntpmetrics` accounts for these scoring approaches, but you must include a variable called `science_filter` in your data to tell the function which Core Action 1 values to expect. Without this variable, you will get an error:
+
+```{r ipg_construct_science, error = T}
+ipg_data %>%
+  filter(form == "Science") %>%
+  make_metric(metric = "ipg") %>%
+  select(science_filter, starts_with("ca"), col, cm_ipg) %>%
+  head()
+
+ipg_data %>%
+  filter(form == "Science") %>%
+  select(-science_filter) %>%
+  make_metric(metric = "ipg")
+```
+
+### IPG goals
+
+If you have all of the needed variables with proper, allowable values, then the functions in `tntpmetrics` to calculate means (overall or by group) or changes over time work identically to the student survey examples above. For instance:
+
+```{r ipg_goals}
+ipg_data %>%
+  metric_mean(metric = "ipg")
+```

@@ -1,0 +1,69 @@
+---
+title: "Greade-Appropriate Assignments"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Greade-Appropriate Assignments}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+```{r setup}
+library(knitr)
+library(dplyr)
+library(tntpmetrics)
+```
+
+`tntpmetrics` calculates grade-appropriate assignments with the `metrics = 'assignments'` parameter added to `make_metric()`.  The required column names and values for calculating grade-appropriate assignments are below.
+
+**Grade-Appropriate Assignments**
+
+* Metric name to use in package: `metric = 'assignments'`
+* Items: content, practice, relevance
+* Scale: 0 (No Opportunity), 1 (Minimal Opportunity), 2 (Sufficient Opportunity)
+  
+Grade-appropriate assignment scores are calculated by adding the content, practice, and relevance values. Scores above 4 are grade-appropriate, while scores under 4 are not.
+
+To show an example of calculating grade-appropriate assignments, we will create a fake data set of assignment ratings and then determine whether each assignment is grade-appropriate.
+
+```{r}
+# create fake grade-appropriate assignment data
+scale_values <- c(0,1,2)
+
+n <- 100
+
+assignment_scores <- tibble(
+  class_id = sample(c(0, 1, 2), n, replace = TRUE),
+  content = sample(scale_values, n, replace = TRUE),
+  practice = sample(scale_values, n, replace = TRUE),
+  relevance = sample(scale_values, n, replace = TRUE)
+)
+
+# determine wehther assignments are grade-appropriate
+grade_appropriate <- assignment_scores %>%
+  make_metric(metric = 'assignments') 
+
+grade_appropriate %>%
+  head() %>%
+  kable()
+```
+
+Finally, let's calculate the percentage of grade-appropriate assignments. Note that we set `by_class = TRUE` because we have a unique identifier for the class in the `class_id` column.
+
+We will output the results as a data frame containing the mean, standard error, and 95% confidence interval.
+
+```{r}
+metric_mean(grade_appropriate, metric = "assignments", use_binary = TRUE, by_class = TRUE) %>%
+  .[['Overall mean']] %>%
+  summary() %>%
+  as_tibble() %>%
+  kable()
+```
