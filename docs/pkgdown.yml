@@ -1,0 +1,13 @@
+pandoc: 2.11.4
+pkgdown: 2.0.2
+pkgdown_sha: ~
+articles:
+  analyzing_metrics: analyzing_metrics.html
+  assignments: assignments.html
+  metric_overview: metric_overview.html
+  observation_tool: observation_tool.html
+  sample_implicit: sample_implicit.html
+  student_surveys: student_surveys.html
+  teacher_expectations: teacher_expectations.html
+last_built: 2022-01-31T18:52Z
+
