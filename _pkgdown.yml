@@ -11,4 +11,4 @@ articles:
 
 template:
   bootstrap: 5
-  bootswatch: lumen
+  bootswatch: cerulean
