@@ -83,7 +83,7 @@ serpentine <- function(data = NULL, ..., random_num = 1) {
 
   # Add random number to data to break ties
   set.seed(random_num)
-  out <- dplyr::mutate(data, random_num = runif(NROW(data)))
+  out <- dplyr::mutate(data, random_num = stats::runif(NROW(data)))
 
   # If only one variable specified, returning a simple sort.
   if (length(full_vars) < 2) {

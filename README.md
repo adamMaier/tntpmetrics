@@ -47,4 +47,4 @@ following articles:
 -   [**Observation tools:**](observation_tool.html) IPG and TNTP Core
 -   [**Teacher and leader surveys:**](teacher_expectations.html)
     Expectations (both the current items and the older items)
--   **Assignments:** Grade-Appropriate Assignments
+-   [**Assignments:**](assignments.html) Grade-Appropriate Assignments

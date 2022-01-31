@@ -19,7 +19,7 @@ Imports:
     emmeans (>= 1.4.5),
     lme4 (>= 1.1-21),
     lmerTest (>= 3.1),
-    magrittr
+    magrittr,
     stats
 RoxygenNote: 7.1.1
 Suggests: 

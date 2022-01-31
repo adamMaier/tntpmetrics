@@ -99,7 +99,7 @@ sample_implicit <- function(data, n, ..., size_var = NULL, random_num = 1) {
   # Pick a random value between 0 and skip, then iterate over skip and take the first row that is
   # less then each chosen value.
   set.seed(random_num)
-  start <- runif(1, min = 0, max = skip)
+  start <- stats::runif(1, min = 0, max = skip)
   sampled_rows <- seq(from = start, by = skip, length.out = n)
   sampled_rows <- purrr::map_int(sampled_rows, ~ min(which(.x <= cs)))
 

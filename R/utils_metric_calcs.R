@@ -14,7 +14,7 @@ cm_mean <- function(data, need_classid) {
       lmerTest::lmer(construct ~ 1 + (1 | class_id), data = data)
     )
   } else {
-    model <- lm(construct ~ 1, data = data)
+    model <- stats::lm(construct ~ 1, data = data)
   }
   est_means <- emmeans::emmeans(model, ~ 1, mode = "satterthwaite")
   out_list <- list(
@@ -61,7 +61,7 @@ cm_growth <- function(data_1, data_2, need_classid) {
       lmerTest::lmer(construct ~ 1 + time + (1 | class_id), data = full_data)
     )
   } else {
-    model <- lm(construct ~ 1 + time, data = full_data)
+    model <- stats::lm(construct ~ 1 + time, data = full_data)
   }
   est_means <- emmeans::emmeans(model, pairwise ~ time, mode = "satterthwaite")
   out_list <- list(
@@ -91,7 +91,7 @@ cm_equity_mean <- function(data, need_classid) {
       lmerTest::lmer(construct ~ 1 + equity_group + (1 | class_id), data = data)
     )
   } else {
-    model <- lm(construct ~ 1 +  equity_group, data = data)
+    model <- stats::lm(construct ~ 1 +  equity_group, data = data)
   }
   est_means <- emmeans::emmeans(model, pairwise ~ equity_group, mode = "satterthwaite")
   out_list <- list(
@@ -113,7 +113,7 @@ cm_equity_growth <- function(data_1, data_2, need_classid) {
 
   # Make sure equity_group values are the same in both data sets
   if (
-    !all(sort(unique(na.omit(data_1$equity_group))) == sort(unique(na.omit(data_2$equity_group))))
+    !all(sort(unique(stats::na.omit(data_1$equity_group))) == sort(unique(stats::na.omit(data_2$equity_group))))
   ) {
     stop("Some values of equity group are not present in BOTH data sets.", call. = F)
   }
@@ -148,7 +148,7 @@ cm_equity_growth <- function(data_1, data_2, need_classid) {
       lmerTest::lmer(construct ~ 1 + time * equity_group + (1 | class_id), data = full_data)
     )
   } else {
-    model <- lm(construct ~ 1 + time * equity_group, data = full_data)
+    model <- stats::lm(construct ~ 1 + time * equity_group, data = full_data)
   }
   est_means <- emmeans::emmeans(model, pairwise ~ equity_group | time, mode = "satterthwaite")
   out_list <- list(
