@@ -9,7 +9,7 @@ description: >
   single timepoint, growth over time, and differences between subgroups.
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Analyzing common metrics}
+  %\VignetteIndexEntry{Analyzing TNTP Common Metrics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

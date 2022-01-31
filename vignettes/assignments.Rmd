@@ -1,8 +1,8 @@
 ---
-title: "Greade-Appropriate Assignments"
+title: "Grade-Appropriate Assignments"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Greade-Appropriate Assignments}
+  %\VignetteIndexEntry{Grade-Appropriate Assignments}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

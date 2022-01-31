@@ -3,9 +3,9 @@ title: "Overview of Creating Metrics"
 author: "Shane Orr"
 output: rmarkdown::html_vignette
 description: >
-  This vignette provides an overview of the make_metrric function.
+  This vignette provides an overview of the make_metric function.
 vignette: >
-  %\VignetteIndexEntry{metric_overview}
+  %\VignetteIndexEntry{Overview of Creating Metrics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,6 +20,7 @@ knitr::opts_chunk$set(
 ```{r setup, warning=FALSE, message=FALSE}
 library(tntpmetrics)
 library(dplyr)
+library(knitr)
 ```
 
 ## Calculating metrics with `make_metric`
@@ -30,7 +31,8 @@ metric you want calculated, making sure to put the latter in quotes. The result 
 ```{r make_metric_example}
 make_metric(data = ss_data_initial, metric = "engagement") %>%
   select(response_id, starts_with("eng_"), starts_with("cm_")) %>%
-  head()
+  head() %>%
+  kable()
 ```
 
 ### Binary version of common metric
@@ -92,7 +94,8 @@ what if the student survey data was provided to you with each item on a scale of
 ss_data_initial %>%
   mutate(eng_interest = ifelse(eng_interest == 0, NA, eng_interest)) %>%
   make_metric(metric = "engagement") %>%
-  head()
+  head() %>%
+  kable()
 ```
 
 Because this is not technically an error, you can turn off this default warning by setting `scaleusewarning = F`:
