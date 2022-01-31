@@ -158,62 +158,62 @@
 <tr class="odd">
 <td align="right">1</td>
 <td align="right">2</td>
-<td align="right">1</td>
-<td align="right">2</td>
-<td align="right">3</td>
+<td align="right">0</td>
+<td align="right">4</td>
+<td align="right">4</td>
 <td align="left">B</td>
-<td align="right">8</td>
+<td align="right">10</td>
 <td align="left">FALSE</td>
 </tr>
 <tr class="even">
 <td align="right">2</td>
-<td align="right">2</td>
+<td align="right">4</td>
 <td align="right">5</td>
 <td align="right">2</td>
-<td align="right">0</td>
+<td align="right">3</td>
 <td align="left">A</td>
-<td align="right">9</td>
-<td align="left">FALSE</td>
+<td align="right">14</td>
+<td align="left">TRUE</td>
 </tr>
 <tr class="odd">
 <td align="right">3</td>
-<td align="right">5</td>
-<td align="right">1</td>
 <td align="right">3</td>
-<td align="right">4</td>
-<td align="left">A</td>
-<td align="right">13</td>
-<td align="left">TRUE</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="left">C</td>
+<td align="right">6</td>
+<td align="left">FALSE</td>
 </tr>
 <tr class="even">
 <td align="right">4</td>
-<td align="right">4</td>
-<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">2</td>
 <td align="right">3</td>
-<td align="right">4</td>
-<td align="left">A</td>
+<td align="right">5</td>
+<td align="left">B</td>
 <td align="right">11</td>
 <td align="left">FALSE</td>
 </tr>
 <tr class="odd">
 <td align="right">5</td>
-<td align="right">3</td>
-<td align="right">3</td>
+<td align="right">2</td>
 <td align="right">1</td>
 <td align="right">3</td>
-<td align="left">A</td>
+<td align="right">4</td>
+<td align="left">C</td>
 <td align="right">10</td>
 <td align="left">FALSE</td>
 </tr>
 <tr class="even">
 <td align="right">6</td>
 <td align="right">5</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">4</td>
+<td align="right">3</td>
+<td align="right">2</td>
+<td align="right">3</td>
 <td align="left">A</td>
-<td align="right">10</td>
-<td align="left">FALSE</td>
+<td align="right">13</td>
+<td align="left">TRUE</td>
 </tr>
 </tbody>
 </table>
@@ -230,7 +230,7 @@
 <span class="va">expectations_mean</span>
 <span class="co">#&gt; $`Overall mean`</span>
 <span class="co">#&gt;  1       emmean     SE  df lower.CL upper.CL</span>
-<span class="co">#&gt;  overall  0.327 0.0271 299    0.273     0.38</span>
+<span class="co">#&gt;  overall  0.323 0.0271 299     0.27    0.377</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Confidence level used: 0.95 </span>
 <span class="co">#&gt; </span>
@@ -241,7 +241,7 @@
 <code class="sourceCode R"><span class="va">expectations_mean_value</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">expectations_mean</span><span class="op">[[</span><span class="st">'Overall mean'</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">emmean</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">expectations_mean_value</span>, <span class="fl">2</span><span class="op">)</span>
-<span class="co">#&gt; [1] 0.33</span></code></pre></div>
+<span class="co">#&gt; [1] 0.32</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="percentage-of-teachers-with-high-expectations-by-group">Percentage of Teachers with High Expectations by Group<a class="anchor" aria-label="anchor" href="#percentage-of-teachers-with-high-expectations-by-group"></a>
@@ -254,17 +254,17 @@
 <span class="va">group_expectations_mean</span>
 <span class="co">#&gt; $`Group means`</span>
 <span class="co">#&gt;  equity_group emmean     SE  df lower.CL upper.CL</span>
-<span class="co">#&gt;  A             0.305 0.0460 297    0.214    0.395</span>
-<span class="co">#&gt;  B             0.333 0.0497 297    0.236    0.431</span>
-<span class="co">#&gt;  C             0.343 0.0460 297    0.252    0.433</span>
+<span class="co">#&gt;  A             0.371 0.0457 297    0.282    0.461</span>
+<span class="co">#&gt;  B             0.268 0.0475 297    0.174    0.362</span>
+<span class="co">#&gt;  C             0.327 0.0473 297    0.233    0.420</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Confidence level used: 0.95 </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $`Difference(s) between groups`</span>
 <span class="co">#&gt;  contrast estimate     SE  df t.ratio p.value</span>
-<span class="co">#&gt;  A - B    -0.02857 0.0677 297  -0.422  0.9064</span>
-<span class="co">#&gt;  A - C    -0.03810 0.0650 297  -0.586  0.8278</span>
-<span class="co">#&gt;  B - C    -0.00952 0.0677 297  -0.141  0.9891</span>
+<span class="co">#&gt;  A - B      0.1034 0.0659 297   1.568  0.2611</span>
+<span class="co">#&gt;  A - C      0.0449 0.0658 297   0.683  0.7737</span>
+<span class="co">#&gt;  B - C     -0.0585 0.0671 297  -0.872  0.6582</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; P value adjustment: tukey method for comparing a family of 3 estimates </span>
 <span class="co">#&gt; </span>
@@ -287,27 +287,27 @@
 <tbody>
 <tr class="odd">
 <td align="left">A</td>
-<td align="right">0.3047619</td>
-<td align="right">0.0459712</td>
+<td align="right">0.3714286</td>
+<td align="right">0.0456883</td>
 <td align="right">297</td>
-<td align="right">0.2142914</td>
-<td align="right">0.3952324</td>
+<td align="right">0.2815147</td>
+<td align="right">0.4613424</td>
 </tr>
 <tr class="even">
 <td align="left">B</td>
-<td align="right">0.3333333</td>
-<td align="right">0.0496545</td>
+<td align="right">0.2680412</td>
+<td align="right">0.0475350</td>
 <td align="right">297</td>
-<td align="right">0.2356140</td>
-<td align="right">0.4310526</td>
+<td align="right">0.1744931</td>
+<td align="right">0.3615894</td>
 </tr>
 <tr class="odd">
 <td align="left">C</td>
-<td align="right">0.3428571</td>
-<td align="right">0.0459712</td>
+<td align="right">0.3265306</td>
+<td align="right">0.0472919</td>
 <td align="right">297</td>
-<td align="right">0.2523866</td>
-<td align="right">0.4333276</td>
+<td align="right">0.2334610</td>
+<td align="right">0.4196003</td>
 </tr>
 </tbody>
 </table>
@@ -328,27 +328,27 @@
 <tbody>
 <tr class="odd">
 <td align="left">A - B</td>
-<td align="right">-0.0285714</td>
-<td align="right">0.0676677</td>
+<td align="right">0.1033873</td>
+<td align="right">0.0659318</td>
 <td align="right">297</td>
-<td align="right">-0.4222313</td>
-<td align="right">0.9064487</td>
+<td align="right">1.5680953</td>
+<td align="right">0.2611196</td>
 </tr>
 <tr class="even">
 <td align="left">A - C</td>
-<td align="right">-0.0380952</td>
-<td align="right">0.0650130</td>
+<td align="right">0.0448980</td>
+<td align="right">0.0657567</td>
 <td align="right">297</td>
-<td align="right">-0.5859630</td>
-<td align="right">0.8277515</td>
+<td align="right">0.6827891</td>
+<td align="right">0.7737122</td>
 </tr>
 <tr class="odd">
 <td align="left">B - C</td>
-<td align="right">-0.0095238</td>
-<td align="right">0.0676677</td>
+<td align="right">-0.0584894</td>
+<td align="right">0.0670530</td>
 <td align="right">297</td>
-<td align="right">-0.1407438</td>
-<td align="right">0.9891391</td>
+<td align="right">-0.8722859</td>
+<td align="right">0.6582066</td>
 </tr>
 </tbody>
 </table>

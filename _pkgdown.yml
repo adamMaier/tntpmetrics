@@ -12,3 +12,5 @@ articles:
 template:
   bootstrap: 5
   bootswatch: cerulean
+
+url: https://adammaier.github.io/tntpmetrics/
