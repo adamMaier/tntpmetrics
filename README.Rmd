@@ -40,9 +40,9 @@ devtools::install_github("adamMaier/tntpmetrics")
 
 To learn more about how the package works, please read through the following articles:
 
-* [**Overview of creating metrics**](articles/metric_overview.html)
-* [**Student surveys:**](articles/student_surveys.html) Engagement, Relevance, and Belonging
-* [**Observation tools:**](articles/observation_tool.html) IPG and TNTP Core
-* [**Teacher and leader surveys:**](articles/teacher_expectations.html) Expectations (both the current items and the older items)
-* [**Assignments:**](articles/assignments.html) Grade-Appropriate Assignments
-* [**Sampling:**](articles/sample_implicit.html) Sample schools, teachers, and classrooms
+* [**Overview of creating metrics**](https://adammaier.github.io/tntpmetrics/articles/metric_overview.html)
+* [**Student surveys:**](https://adammaier.github.io/tntpmetrics/articles/student_surveys.html) Engagement, Relevance, and Belonging
+* [**Observation tools:**](https://adammaier.github.io/tntpmetrics/articles/observation_tool.html) IPG and TNTP Core
+* [**Teacher and leader surveys:**](https://adammaier.github.io/tntpmetrics/articles/teacher_expectations.html) Expectations (both the current items and the older items)
+* [**Assignments:**](https://adammaier.github.io/tntpmetrics/articles/assignments.html) Grade-Appropriate Assignments
+* [**Sampling:**](https://adammaier.github.io/tntpmetrics/articles/sample_implicit.html) Sample schools, teachers, and classrooms
